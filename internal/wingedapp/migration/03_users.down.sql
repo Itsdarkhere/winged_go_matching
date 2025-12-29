@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS general_ai_context;
+DROP TABLE IF EXISTS user_ai_convo;
+DROP TABLE IF EXISTS user_ai_context;
+DROP TABLE IF EXISTS user_photo;
+DROP TABLE IF EXISTS user_blocked_contact;
+DROP TABLE IF EXISTS user_eleven_labs;
+DROP TABLE IF EXISTS user_mobility_constraint;
+DROP TABLE IF EXISTS user_date_type_preference;
+DROP TABLE IF EXISTS user_dietary_restriction;
+DROP TABLE IF EXISTS user_dating_preferences;
+DROP TYPE IF EXISTS dating_preferences;
+DROP TABLE IF EXISTS users;

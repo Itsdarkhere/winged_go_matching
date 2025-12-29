@@ -1,0 +1,10 @@
+output = "./internal/wingedapp/db/pgmodel"
+pkgname = "pgmodel"
+
+[psql]
+dbname  = "postgres"
+host    = "localhost"
+port    = 5433
+user    = "postgres"
+pass    = "postgres"
+sslmode = "disable"

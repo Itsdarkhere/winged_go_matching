@@ -1,0 +1,31 @@
+-- CREATE TABLE IF NOT EXISTS categories (
+--   id SERIAL PRIMARY KEY,
+--   name VARCHAR(255) NOT NULL,
+--   description TEXT,
+--   created_at TIMESTAMP DEFAULT NOW(),
+--   updated_at TIMESTAMP DEFAULT NOW()
+-- );
+
+-- testing purposes only
+-- CREATE OR REPLACE PROCEDURE test_populate_categories()
+-- LANGUAGE plpgsql
+-- AS $$
+-- BEGIN
+--     INSERT INTO categories (name, description) VALUES
+--        ('Books', 'All kinds of books'),
+--        ('Electronics', 'Devices and gadgets'),
+--        ('Clothing', 'Men and women clothing'),
+--        ('Food', 'Groceries and perishables')
+--     ;
+-- END;
+-- $$;
+
+-- testing purposes only
+-- CREATE OR REPLACE FUNCTION test_get_categories()
+--     RETURNS SETOF categories
+--     LANGUAGE plpgsql
+-- AS $$
+-- BEGIN
+-- RETURN QUERY SELECT * FROM categories;
+-- END;
+-- $$;

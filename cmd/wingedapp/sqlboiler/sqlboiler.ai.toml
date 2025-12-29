@@ -1,0 +1,12 @@
+output = "./internal/wingedapp/aibackend/db/aipgmodel"
+pkgname = "aipgmodel"
+no-tests = true
+
+[psql]
+dbname  = "postgres"
+host    = "localhost"
+port    = 5433
+user    = "postgres"
+pass    = "postgres"
+sslmode = "disable"
+schema = "public"

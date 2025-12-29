@@ -1,0 +1,26 @@
+output = "./internal/wingedapp/db/pgmodel"
+pkgname = "pgmodel"
+no-tests = true
+
+[[aliases.tables]]
+name          = "user_ai_convo"
+up_plural     = "UserAIConvos"
+up_singular   = "UserAIConvo"
+down_plural   = "UserAIConvos"
+down_singular = "UserAIConvo"
+
+[[aliases.tables]]
+name          = "general_ai_context"
+up_plural     = "GeneralAIContexts"
+up_singular   = "GeneralAIContext"
+down_plural   = "GeneralAIContexts"
+down_singular = "GeneralAIContext"
+
+[psql]
+dbname  = "postgres"
+host    = "localhost"
+port    = 5433
+user    = "postgres"
+pass    = "postgres"
+sslmode = "disable"
+schema = "public"

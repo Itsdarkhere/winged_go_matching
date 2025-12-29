@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS sys_param;
+DROP EXTENSION IF EXISTS btree_gist;
+DROP EXTENSION IF EXISTS "uuid-ossp";

@@ -1,0 +1,175 @@
+func searchPaths(db *sqlx.DB) {
+	type ext struct {
+		SearchPath string `db:"search_path"`
+	}
+
+	var exts []ext
+	if err := db.Select(&exts, "SHOW search_path;"); err != nil {
+		log.Fatalf("expected no error selecting extensions: %v", err)
+	}
+	fmt.Println("==== exts:", strutil.GetAsJson(exts))
+}
+
+//func test2(connCfg *dbConn.Cfg) {
+//
+//	var mEbeds = []migrateEmbed{
+//		{
+//			schemaName: "public",
+//			stmts:      wingedappMigration.Stmts,
+//		},
+//		{
+//			schemaName: "backend_app",
+//			stmts:      wingedappMigration.Stmts,
+//		},
+//		{
+//			schemaName: "ai_backend",
+//			stmts:      aiDBMigration.Stmts,
+//		},
+//	}
+//
+//	/*db, err := connCfg.PGConn(context.Background(), true)
+//	if err != nil {
+//		log.Fatalf("expected no error connecting to MySQL: %v", err)
+//	}
+//	queryExts(db)
+//	searchPaths(db)*/
+//
+//	for _, me := range mEbeds {
+//
+//		fmt.Println(me.schemaName)
+//		connCfg.Schema = me.schemaName // manual db override
+//		// run migrate here
+//		opts := &dbMigrate.Options{
+//			Stmts:   wingedappMigration.Stmts,
+//			ConnCfg: connCfg,
+//		}
+//
+//		// new
+//		retryOpts := retry.Attempts(3)
+//		err := retry.Do(
+//			func() error {
+//				db, err := connCfg.PGConn(context.Background(), true)
+//				if err != nil {
+//					log.Fatalf("expected no error connecting to MySQL: %v", err)
+//				}
+//
+//				fmt.Println("=== trying")
+//				if err = dbMigrate.PG(context.Background(), opts); err != nil {
+//					if errors.Is(err, migrate.ErrNoChange) {
+//						log.Println("no migrations were not run")
+//						return nil
+//					}
+//
+//					if errRecreateSchema := recreateSchema(db, me.schemaName); errRecreateSchema != nil {
+//						log.Fatalf("expected no error recreating schema: %v", errRecreateSchema)
+//					}
+//					if errClose := db.Close(); errClose != nil {
+//						log.Fatalf("expected no error closing db: %v", errClose)
+//					}
+//					fmt.Println("=== i have successfully wiped schema")
+//
+//					// delete db lool
+//					return fmt.Errorf("expected no error running migrations for db: '%s': %v", me.schemaName, err)
+//					// log.Fatalf("expected no error running migrations for db: '%s': %v", connCfg.Schema, err)
+//				}
+//				return nil
+//			},
+//			retryOpts)
+//		if err != nil {
+//			log.Fatalf("all retries failed: %v", err)
+//		}
+//
+//		// old
+//		/*if err = dbMigrate.PG(context.Background(), opts); err != nil {
+//			if errors.Is(err, migrate.ErrNoChange) {
+//				log.Println("no migrations were not run")
+//				return
+//			}
+//			log.Fatalf("expected no error running migrations for db: '%s': %v", connCfg.Schema, err)
+//		}*/
+//	}
+//
+//	fmt.Println("==== connected to db successfully ====")
+//}
+
+// test works for migrating new entries
+//func test(connCfg *dbConn.Cfg) {
+//	var err error
+//	/*db, err := connCfg.PGConn(context.Background(), true)
+//	if err != nil {
+//		log.Fatalf("expected no error connecting to MySQL: %v", err)
+//	}
+//	queryExts(db)
+//	searchPaths(db)*/
+//	connCfg.Schema = "backend_app" // manual db override
+//
+//	db, err := connCfg.PGConn(context.Background(), true)
+//	if err != nil {
+//		log.Fatalf("expected no error connecting to MySQL: %v", err)
+//	}
+//
+//	// run migrate here
+//	opts := &dbMigrate.Options{
+//		Stmts:   wingedappMigration.Stmts,
+//		ConnCfg: connCfg,
+//	}
+//
+//	err = retry.Do(
+//		func() error {
+//			if err = dbMigrate.PG(context.Background(), opts); err != nil {
+//				if errors.Is(err, migrate.ErrNoChange) {
+//					log.Println("no migrations were not run")
+//					return nil
+//				}
+//
+//				// Deete if it doesn't work
+//				if err = recreateSchema(db, connCfg.Schema); err != nil {
+//					log.Fatalf("expected no error recreating schema: %v", err)
+//				}
+//				fmt.Println("=== i h")
+//				return fmt.Errorf("expected no error running migrations for db: '%s': %v", connCfg.Schema, err)
+//				// log.Fatalf("expected no error running migrations for db: '%s': %v", connCfg.Schema, err)
+//			}
+//			return nil
+//		},
+//	)
+//	if err != nil {
+//		log.Fatalf("all retries failed: %v", err)
+//	}
+//
+//	/*if err = dbMigrate.PG(context.Background(), opts); err != nil {
+//		if errors.Is(err, migrate.ErrNoChange) {
+//			log.Println("no migrations were not run")
+//			return
+//		}
+//		log.Fatalf("expected no error running migrations for db: '%s': %v", connCfg.Schema, err)
+//	}*/
+//
+//	fmt.Println("==== connected to db successfully ====")
+//}
+
+//func recreateSchema(db *sqlx.DB, schema string) error {
+//	if err := conn.DropPGSchema(context.Background(), db, schema); err != nil {
+//		return fmt.Errorf("expected no error dropping schema %s: %v", schema, err)
+//	}
+//
+//	if err := conn.CreatePGSchema(context.Background(), db, schema); err != nil {
+//		return fmt.Errorf("expected no error creating schema %s: %v", schema, err)
+//	}
+//
+//	return nil
+//}
+
+
+func queryExts(db *sqlx.DB) {
+	type ext struct {
+		Oid  int    `db:"oid"`
+		Name string `db:"extname"`
+	}
+
+	var exts []ext
+	if err := db.Select(&exts, "SELECT oid, extname FROM pg_catalog.pg_extension;"); err != nil {
+		log.Fatalf("expected no error selecting extensions: %v", err)
+	}
+	fmt.Println("==== exts:", strutil.GetAsJson(exts))
+}
