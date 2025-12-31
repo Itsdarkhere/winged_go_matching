@@ -3,6 +3,7 @@ package apprepo
 import (
 	"context"
 	"fmt"
+	"strings"
 	"wingedapp/pgtester/internal/wingedapp/aibackend/db/aipgmodel"
 	"wingedapp/pgtester/internal/wingedapp/db/pgmodel"
 	supabasepgmodel "wingedapp/pgtester/internal/wingedapp/supabase/db/supabasepgmodel"
@@ -16,9 +17,9 @@ var (
 	toDeleteBackendApp = []struct{ table, column string }{
 		// 1. Tables with FK to match_result (must delete before match_result)
 		{pgmodel.TableNames.MatchChatMessage, "sender_id"},
-		// 2. match_result (user_a_ref_id handled, user_b_ref_id handled separately)
-		{pgmodel.TableNames.MatchResult, "user_a_ref_id"},
-		{pgmodel.TableNames.MatchResult, "user_b_ref_id"},
+		// 2. match_result (initiator and receiver user refs)
+		{pgmodel.TableNames.MatchResult, "initiator_user_ref_id"},
+		{pgmodel.TableNames.MatchResult, "receiver_user_ref_id"},
 		// 3. Other tables with user_ref_id
 		{pgmodel.TableNames.WingsEcnTransaction, "user_ref_id"},
 		{pgmodel.TableNames.WingsEcnActionLog, "user_ref_id"},
@@ -89,6 +90,10 @@ func (s *Store) DeleteUserData(ctx context.Context,
 	for _, spec := range toDeleteBackendApp {
 		query := fmt.Sprintf("DELETE FROM %s WHERE %s = $1", spec.table, spec.column)
 		if _, err := beExec.ExecContext(ctx, query, userID); err != nil {
+			// Skip if table/column doesn't exist (schema mismatch)
+			if strings.Contains(err.Error(), "does not exist") {
+				continue
+			}
 			return fmt.Errorf("deleting from %s: %w", spec.table, err)
 		}
 	}

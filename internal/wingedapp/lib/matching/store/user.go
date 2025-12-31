@@ -56,7 +56,25 @@ func (s *UserStore) Insert(
 		UpdatedAt:              null.TimeFrom(time.Now()),
 	}
 
-	if err := user.Insert(ctx, exec, boil.Infer()); err != nil {
+	// Whitelist columns - 'location' column was removed from DB but pgmodel not regenerated yet
+	if err := user.Insert(ctx, exec, boil.Whitelist(
+		pgmodel.UserColumns.ID,
+		pgmodel.UserColumns.Email,
+		pgmodel.UserColumns.FirstName,
+		pgmodel.UserColumns.LastName,
+		pgmodel.UserColumns.Gender,
+		pgmodel.UserColumns.HeightCM,
+		pgmodel.UserColumns.Latitude,
+		pgmodel.UserColumns.Longitude,
+		pgmodel.UserColumns.Birthday,
+		pgmodel.UserColumns.Address,
+		pgmodel.UserColumns.IsActive,
+		pgmodel.UserColumns.RegisteredSuccessfully,
+		pgmodel.UserColumns.MobileConfirmed,
+		pgmodel.UserColumns.IsTestUser,
+		pgmodel.UserColumns.CreatedAt,
+		pgmodel.UserColumns.UpdatedAt,
+	)); err != nil {
 		return "", fmt.Errorf("insert backend_app user: %w", err)
 	}
 

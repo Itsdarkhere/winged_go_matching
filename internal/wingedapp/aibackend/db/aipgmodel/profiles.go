@@ -30,7 +30,7 @@ type Profile struct {
 	UpdatedAt                  null.Time    `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
 	ConversationID             null.String  `boil:"conversation_id" json:"conversation_id,omitempty" toml:"conversation_id" yaml:"conversation_id,omitempty"`
 	WellbeingHabits            null.String  `boil:"wellbeing_habits" json:"wellbeing_habits,omitempty" toml:"wellbeing_habits" yaml:"wellbeing_habits,omitempty"`
-	Interests                  null.String  `boil:"interests" json:"interests,omitempty" toml:"interests" yaml:"interests,omitempty"`
+	CorePassions               null.String  `boil:"core_passions" json:"core_passions,omitempty" toml:"core_passions" yaml:"core_passions,omitempty"`
 	SenseOfHumor               null.String  `boil:"sense_of_humor" json:"sense_of_humor,omitempty" toml:"sense_of_humor" yaml:"sense_of_humor,omitempty"`
 	SelfCareHabits             null.String  `boil:"self_care_habits" json:"self_care_habits,omitempty" toml:"self_care_habits" yaml:"self_care_habits,omitempty"`
 	MoneyManagement            null.String  `boil:"money_management" json:"money_management,omitempty" toml:"money_management" yaml:"money_management,omitempty"`
@@ -57,6 +57,12 @@ type Profile struct {
 	IdealDate                  null.String  `boil:"ideal_date" json:"ideal_date,omitempty" toml:"ideal_date" yaml:"ideal_date,omitempty"`
 	RedGreenFlags              null.String  `boil:"red_green_flags" json:"red_green_flags,omitempty" toml:"red_green_flags" yaml:"red_green_flags,omitempty"`
 	Neuroticism                null.Float32 `boil:"neuroticism" json:"neuroticism,omitempty" toml:"neuroticism" yaml:"neuroticism,omitempty"`
+	CasualInterests            null.String  `boil:"casual_interests" json:"casual_interests,omitempty" toml:"casual_interests" yaml:"casual_interests,omitempty"`
+	CommunicationStyle         null.String  `boil:"communication_style" json:"communication_style,omitempty" toml:"communication_style" yaml:"communication_style,omitempty"`
+	LifeSituation              null.String  `boil:"life_situation" json:"life_situation,omitempty" toml:"life_situation" yaml:"life_situation,omitempty"`
+	FinancialRiskTolerance     null.Float64 `boil:"financial_risk_tolerance" json:"financial_risk_tolerance,omitempty" toml:"financial_risk_tolerance" yaml:"financial_risk_tolerance,omitempty"`
+	AbstractVsConcrete         null.Float64 `boil:"abstract_vs_concrete" json:"abstract_vs_concrete,omitempty" toml:"abstract_vs_concrete" yaml:"abstract_vs_concrete,omitempty"`
+	AttachmentStyle            null.String  `boil:"attachment_style" json:"attachment_style,omitempty" toml:"attachment_style" yaml:"attachment_style,omitempty"`
 
 	R *profileR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L profileL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -69,7 +75,7 @@ var ProfileColumns = struct {
 	UpdatedAt                  string
 	ConversationID             string
 	WellbeingHabits            string
-	Interests                  string
+	CorePassions                  string
 	SenseOfHumor               string
 	SelfCareHabits             string
 	MoneyManagement            string
@@ -96,6 +102,12 @@ var ProfileColumns = struct {
 	IdealDate                  string
 	RedGreenFlags              string
 	Neuroticism                string
+	CasualInterests            string
+	CommunicationStyle         string
+	LifeSituation              string
+	FinancialRiskTolerance     string
+	AbstractVsConcrete         string
+	AttachmentStyle            string
 }{
 	ID:                         "id",
 	UserID:                     "user_id",
@@ -103,7 +115,7 @@ var ProfileColumns = struct {
 	UpdatedAt:                  "updated_at",
 	ConversationID:             "conversation_id",
 	WellbeingHabits:            "wellbeing_habits",
-	Interests:                  "interests",
+	CorePassions:                  "core_passions",
 	SenseOfHumor:               "sense_of_humor",
 	SelfCareHabits:             "self_care_habits",
 	MoneyManagement:            "money_management",
@@ -130,6 +142,12 @@ var ProfileColumns = struct {
 	IdealDate:                  "ideal_date",
 	RedGreenFlags:              "red_green_flags",
 	Neuroticism:                "neuroticism",
+	CasualInterests:            "casual_interests",
+	CommunicationStyle:         "communication_style",
+	LifeSituation:              "life_situation",
+	FinancialRiskTolerance:     "financial_risk_tolerance",
+	AbstractVsConcrete:         "abstract_vs_concrete",
+	AttachmentStyle:            "attachment_style",
 }
 
 var ProfileTableColumns = struct {
@@ -139,7 +157,7 @@ var ProfileTableColumns = struct {
 	UpdatedAt                  string
 	ConversationID             string
 	WellbeingHabits            string
-	Interests                  string
+	CorePassions                  string
 	SenseOfHumor               string
 	SelfCareHabits             string
 	MoneyManagement            string
@@ -173,7 +191,7 @@ var ProfileTableColumns = struct {
 	UpdatedAt:                  "profiles.updated_at",
 	ConversationID:             "profiles.conversation_id",
 	WellbeingHabits:            "profiles.wellbeing_habits",
-	Interests:                  "profiles.interests",
+	CorePassions:                  "profiles.interests",
 	SenseOfHumor:               "profiles.sense_of_humor",
 	SelfCareHabits:             "profiles.self_care_habits",
 	MoneyManagement:            "profiles.money_management",
@@ -249,7 +267,7 @@ var ProfileWhere = struct {
 	UpdatedAt                  whereHelpernull_Time
 	ConversationID             whereHelpernull_String
 	WellbeingHabits            whereHelpernull_String
-	Interests                  whereHelpernull_String
+	CorePassions                  whereHelpernull_String
 	SenseOfHumor               whereHelpernull_String
 	SelfCareHabits             whereHelpernull_String
 	MoneyManagement            whereHelpernull_String
@@ -283,7 +301,7 @@ var ProfileWhere = struct {
 	UpdatedAt:                  whereHelpernull_Time{field: "\"profiles\".\"updated_at\""},
 	ConversationID:             whereHelpernull_String{field: "\"profiles\".\"conversation_id\""},
 	WellbeingHabits:            whereHelpernull_String{field: "\"profiles\".\"wellbeing_habits\""},
-	Interests:                  whereHelpernull_String{field: "\"profiles\".\"interests\""},
+	CorePassions:                  whereHelpernull_String{field: "\"profiles\".\"interests\""},
 	SenseOfHumor:               whereHelpernull_String{field: "\"profiles\".\"sense_of_humor\""},
 	SelfCareHabits:             whereHelpernull_String{field: "\"profiles\".\"self_care_habits\""},
 	MoneyManagement:            whereHelpernull_String{field: "\"profiles\".\"money_management\""},
@@ -329,9 +347,9 @@ func (*profileR) NewStruct() *profileR {
 type profileL struct{}
 
 var (
-	profileAllColumns            = []string{"id", "user_id", "created_at", "updated_at", "conversation_id", "wellbeing_habits", "interests", "sense_of_humor", "self_care_habits", "money_management", "self_reflection_capabilities", "moral_frameworks", "life_goals", "partnership_values", "spirituality_growth_mindset", "cultural_values", "family_planning", "extroversion_social_energy", "routine_vs_spontaneity", "agreeableness", "conscientiousness", "dominance_level", "emotional_expressiveness", "sex_drive", "geographical_mobility", "conflict_resolution_style", "sexuality_preferences", "religion", "self_portrait", "mutual_commitment", "ideal_date", "red_green_flags", "neuroticism"}
+	profileAllColumns            = []string{"id", "user_id", "created_at", "updated_at", "conversation_id", "self_portrait", "core_passions", "wellbeing_habits", "self_care_habits", "money_management", "self_reflection_capabilities", "moral_frameworks", "life_goals", "partnership_values", "mutual_commitment", "spirituality_growth_mindset", "cultural_values", "family_planning", "ideal_date", "red_green_flags", "extroversion_social_energy", "routine_vs_spontaneity", "agreeableness", "conscientiousness", "neuroticism", "dominance_level", "emotional_expressiveness", "sex_drive", "geographical_mobility", "conflict_resolution_style", "sexuality_preferences", "religion", "sense_of_humor", "casual_interests", "communication_style", "life_situation", "financial_risk_tolerance", "abstract_vs_concrete", "attachment_style"}
 	profileColumnsWithoutDefault = []string{}
-	profileColumnsWithDefault    = []string{"id", "user_id", "created_at", "updated_at", "conversation_id", "wellbeing_habits", "interests", "sense_of_humor", "self_care_habits", "money_management", "self_reflection_capabilities", "moral_frameworks", "life_goals", "partnership_values", "spirituality_growth_mindset", "cultural_values", "family_planning", "extroversion_social_energy", "routine_vs_spontaneity", "agreeableness", "conscientiousness", "dominance_level", "emotional_expressiveness", "sex_drive", "geographical_mobility", "conflict_resolution_style", "sexuality_preferences", "religion", "self_portrait", "mutual_commitment", "ideal_date", "red_green_flags", "neuroticism"}
+	profileColumnsWithDefault    = []string{"id", "user_id", "created_at", "updated_at", "conversation_id", "self_portrait", "core_passions", "wellbeing_habits", "self_care_habits", "money_management", "self_reflection_capabilities", "moral_frameworks", "life_goals", "partnership_values", "mutual_commitment", "spirituality_growth_mindset", "cultural_values", "family_planning", "ideal_date", "red_green_flags", "extroversion_social_energy", "routine_vs_spontaneity", "agreeableness", "conscientiousness", "neuroticism", "dominance_level", "emotional_expressiveness", "sex_drive", "geographical_mobility", "conflict_resolution_style", "sexuality_preferences", "religion", "sense_of_humor", "casual_interests", "communication_style", "life_situation", "financial_risk_tolerance", "abstract_vs_concrete", "attachment_style"}
 	profilePrimaryKeyColumns     = []string{"id"}
 	profileGeneratedColumns      = []string{}
 )

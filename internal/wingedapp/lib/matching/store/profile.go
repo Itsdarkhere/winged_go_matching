@@ -45,7 +45,7 @@ func (p *ProfileStore) Insert(
 
 		// Qualitative fields
 		WellbeingHabits:            d.WellbeingHabits,
-		Interests:                  d.Interests,
+		CorePassions:               d.Interests,
 		SenseOfHumor:               d.SenseOfHumor,
 		SelfCareHabits:             d.SelfCareHabits,
 		MoneyManagement:            d.MoneyManagement,
@@ -100,7 +100,7 @@ func (p *ProfileStore) Profile(ctx context.Context, exec boil.ContextExecutor, u
 	profile := &matching.PersonProfile{
 		Qualitative: matching.QualitativeSection{
 			SelfPortrait:               pgProfile.SelfPortrait.String,
-			Interests:                  pgProfile.Interests.String,
+			Interests:                  pgProfile.CorePassions.String,
 			WellbeingHabits:            pgProfile.WellbeingHabits.String,
 			SelfCareHabits:             pgProfile.SelfCareHabits.String,
 			MoneyManagement:            pgProfile.MoneyManagement.String,
