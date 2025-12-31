@@ -60,6 +60,9 @@ func (p *ProfileStore) Insert(
 		MutualCommitment:           d.MutualCommitment,
 		IdealDate:                  d.IdealDate,
 		RedGreenFlags:              d.RedGreenFlags,
+		CasualInterests:            d.CasualInterests,
+		CommunicationStyle:         d.CommunicationStyle,
+		LifeSituation:              d.LifeSituation,
 
 		// Quantitative fields
 		ExtroversionSocialEnergy: d.ExtroversionSocialEnergy,
@@ -71,11 +74,14 @@ func (p *ProfileStore) Insert(
 		SexDrive:                 d.SexDrive,
 		GeographicalMobility:     d.GeographicalMobility,
 		Neuroticism:              d.Neuroticism,
+		FinancialRiskTolerance:   d.FinancialRiskTolerance,
+		AbstractVsConcrete:       d.AbstractVsConcrete,
 
 		// Categorical fields
 		ConflictResolutionStyle: d.ConflictResolutionStyle,
 		SexualityPreferences:    d.SexualityPreferences,
 		Religion:                d.Religion,
+		AttachmentStyle:         d.AttachmentStyle,
 	}
 
 	if err := p.repo.InsertProfile(ctx, exec, profile); err != nil {
@@ -100,7 +106,7 @@ func (p *ProfileStore) Profile(ctx context.Context, exec boil.ContextExecutor, u
 	profile := &matching.PersonProfile{
 		Qualitative: matching.QualitativeSection{
 			SelfPortrait:               pgProfile.SelfPortrait.String,
-			Interests:                  pgProfile.CorePassions.String,
+			CorePassions:               pgProfile.CorePassions.String,
 			WellbeingHabits:            pgProfile.WellbeingHabits.String,
 			SelfCareHabits:             pgProfile.SelfCareHabits.String,
 			MoneyManagement:            pgProfile.MoneyManagement.String,
@@ -114,6 +120,10 @@ func (p *ProfileStore) Profile(ctx context.Context, exec boil.ContextExecutor, u
 			FamilyPlanning:             pgProfile.FamilyPlanning.String,
 			IdealDate:                  pgProfile.IdealDate.String,
 			RedGreenFlags:              pgProfile.RedGreenFlags.String,
+			SenseOfHumor:               pgProfile.SenseOfHumor.String,
+			CasualInterests:            pgProfile.CasualInterests.String,
+			CommunicationStyle:         pgProfile.CommunicationStyle.String,
+			LifeSituation:              pgProfile.LifeSituation.String,
 		},
 		Quantitative: matching.QuantitativeSection{
 			ExtroversionSocialEnergy: pgProfile.ExtroversionSocialEnergy.Float64,
@@ -125,11 +135,14 @@ func (p *ProfileStore) Profile(ctx context.Context, exec boil.ContextExecutor, u
 			EmotionalExpressiveness:  pgProfile.EmotionalExpressiveness.Float64,
 			SexDrive:                 pgProfile.SexDrive.Float64,
 			GeographicalMobility:     pgProfile.GeographicalMobility.Float64,
+			FinancialRiskTolerance:   pgProfile.FinancialRiskTolerance.Float64,
+			AbstractVsConcrete:       pgProfile.AbstractVsConcrete.Float64,
 		},
 		Categorical: matching.CategoricalSection{
 			ConflictResolutionStyle: pgProfile.ConflictResolutionStyle.String,
 			SexualityPreferences:    pgProfile.SexualityPreferences.String,
 			Religion:                pgProfile.Religion.String,
+			AttachmentStyle:         pgProfile.AttachmentStyle.String,
 		},
 	}
 

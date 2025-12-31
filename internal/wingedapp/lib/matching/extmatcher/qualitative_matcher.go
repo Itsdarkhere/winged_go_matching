@@ -65,6 +65,13 @@ func (qm *QualitativeMatcher) Qualify(
 		return nil, fmt.Errorf("error reading response body: %w", err)
 	}
 
+	fmt.Println("==== AI BACKEND REQUEST ====")
+	fmt.Println(string(body))
+	fmt.Println("==== AI BACKEND RESPONSE ====")
+	fmt.Println("Status:", resp.StatusCode)
+	fmt.Println("Body:", string(respBody))
+	fmt.Println("============================")
+
 	var compatRes matching.MatchCompatibilityResult
 	if err := json.Unmarshal(respBody, &compatRes); err != nil {
 		return nil, fmt.Errorf("unmarshal response body: %w", err)

@@ -463,7 +463,7 @@ type PersonProfile struct {
 
 type QualitativeSection struct {
 	SelfPortrait               string `boil:"self_portrait" json:"Self Portrait" validate:"required"`
-	Interests                  string `boil:"interests" json:"Interests" validate:"required"`
+	CorePassions               string `boil:"core_passions" json:"Core Passions" validate:"required"`
 	WellbeingHabits            string `boil:"wellbeing_habits" json:"Wellbeing Habits" validate:"required"`
 	SelfCareHabits             string `boil:"self_care_habits" json:"Self Care Habits" validate:"required"`
 	MoneyManagement            string `boil:"money_management" json:"Money Management" validate:"required"`
@@ -477,6 +477,10 @@ type QualitativeSection struct {
 	FamilyPlanning             string `boil:"family_planning" json:"Family Planning" validate:"required"`
 	IdealDate                  string `boil:"ideal_date" json:"Ideal Date" validate:"required"`
 	RedGreenFlags              string `boil:"red_green_flags" json:"Red/Green Flags" validate:"required"`
+	SenseOfHumor               string `boil:"sense_of_humor" json:"Sense of Humor,omitempty"`
+	CasualInterests            string `boil:"casual_interests" json:"Casual Interests,omitempty"`
+	CommunicationStyle         string `boil:"communication_style" json:"Communication Style,omitempty"`
+	LifeSituation              string `boil:"life_situation" json:"Life Situation,omitempty"`
 }
 
 type QuantitativeSection struct {
@@ -489,12 +493,15 @@ type QuantitativeSection struct {
 	EmotionalExpressiveness  float64 `boil:"emotional_expressiveness" json:"Emotional Expressiveness" validate:"required"`
 	SexDrive                 float64 `boil:"sex_drive" json:"Sex Drive" validate:"required"`
 	GeographicalMobility     float64 `boil:"geographical_mobility" json:"Geographical Mobility" validate:"required"`
+	FinancialRiskTolerance   float64 `boil:"financial_risk_tolerance" json:"Financial Risk Tolerance,omitempty"`
+	AbstractVsConcrete       float64 `boil:"abstract_vs_concrete" json:"Abstract vs Concrete,omitempty"`
 }
 
 type CategoricalSection struct {
 	ConflictResolutionStyle string `boil:"conflict_resolution_style" json:"Conflict Resolution Style" validate:"required"`
 	SexualityPreferences    string `boil:"sexuality_preferences" json:"Sexuality Preferences" validate:"required"`
 	Religion                string `boil:"religion" json:"Religion" validate:"required"`
+	AttachmentStyle         string `boil:"attachment_style" json:"Attachment Style,omitempty"`
 }
 
 type Category struct {

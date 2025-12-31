@@ -151,6 +151,9 @@ type ProfileDetails struct {
 	MutualCommitment           null.String `json:"mutual_commitment"`
 	IdealDate                  null.String `json:"ideal_date"`
 	RedGreenFlags              null.String `json:"red_green_flags"`
+	CasualInterests            null.String `json:"casual_interests"`
+	CommunicationStyle         null.String `json:"communication_style"`
+	LifeSituation              null.String `json:"life_situation"`
 
 	// Quantitative fields
 	ExtroversionSocialEnergy null.Float64 `json:"extroversion_social_energy"`
@@ -162,11 +165,14 @@ type ProfileDetails struct {
 	EmotionalExpressiveness  null.Float64 `json:"emotional_expressiveness"`
 	SexDrive                 null.Float64 `json:"sex_drive"`
 	GeographicalMobility     null.Float64 `json:"geographical_mobility"`
+	FinancialRiskTolerance   null.Float64 `json:"financial_risk_tolerance"`
+	AbstractVsConcrete       null.Float64 `json:"abstract_vs_concrete"`
 
 	// Categorical fields
 	ConflictResolutionStyle null.String `json:"conflict_resolution_style"`
 	SexualityPreferences    null.String `json:"sexuality_preferences"`
 	Religion                null.String `json:"religion"`
+	AttachmentStyle         null.String `json:"attachment_style"`
 }
 
 // PopulationCSVResult holds the result of parsing a CSV file.

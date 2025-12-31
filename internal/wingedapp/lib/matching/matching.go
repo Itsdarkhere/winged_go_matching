@@ -17,13 +17,17 @@ import (
 // ProcessMatchResult will process a validatedUserMatchingDetails pair, and return a match result.
 // aiExec is the executor for ai_backend database (for profile lookups).
 func (l *Logic) ProcessMatchResult(ctx context.Context, exec boil.ContextExecutor, aiExec boil.ContextExecutor, matchResult *MatchResult) (*MatchResult, error) {
+	fmt.Printf("[ProcessMatchResult] processing pair: %s <-> %s\n", matchResult.InitiatorUserID, matchResult.ReceiverUserID)
+
 	initiatorUser, err := l.validatedUserMatchingDetails(ctx, exec, matchResult.InitiatorUserID)
 	if err != nil {
+		fmt.Printf("[ProcessMatchResult] ERROR fetching initiator: %v\n", err)
 		return nil, fmt.Errorf("fetch initiator user matching details: %w", err)
 	}
 
 	receiverUser, err := l.validatedUserMatchingDetails(ctx, exec, matchResult.ReceiverUserID)
 	if err != nil {
+		fmt.Printf("[ProcessMatchResult] ERROR fetching receiver: %v\n", err)
 		return nil, fmt.Errorf("fetch receiver user matching details: %w", err)
 	}
 
@@ -65,17 +69,22 @@ func (l *Logic) ProcessMatchResult(ctx context.Context, exec boil.ContextExecuto
 	}
 
 	if res.Error() != nil {
+		fmt.Printf("[ProcessMatchResult] hard qualifiers FAILED: %v\n", res.Error())
 		return matchResult, nil
 	}
+
+	fmt.Println("[ProcessMatchResult] hard qualifiers PASSED, running qualitative matching...")
 
 	/* test qualitative matches if hard filters passed */
 	initiatorProf, err := l.profileStorer.Profile(ctx, aiExec, initiatorUser.ID)
 	if err != nil {
+		fmt.Printf("[ProcessMatchResult] ERROR fetching initiator profile: %v\n", err)
 		return nil, fmt.Errorf("fetch initiator user profile: %w", err)
 	}
 
 	receiverProf, err := l.profileStorer.Profile(ctx, aiExec, receiverUser.ID)
 	if err != nil {
+		fmt.Printf("[ProcessMatchResult] ERROR fetching receiver profile: %v\n", err)
 		return nil, fmt.Errorf("fetch receiver user profile: %w", err)
 	}
 
@@ -84,6 +93,7 @@ func (l *Logic) ProcessMatchResult(ctx context.Context, exec boil.ContextExecuto
 		Juliet: receiverProf,
 	})
 	if err != nil {
+		fmt.Printf("[ProcessMatchResult] ERROR qualitative quantify: %v\n", err)
 		return nil, fmt.Errorf("qualitative quantify: %w", err)
 	}
 
