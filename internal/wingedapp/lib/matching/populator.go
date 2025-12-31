@@ -62,6 +62,17 @@ const (
 	HeaderConflictResolutionStyle = "conflict_resolution_style"
 	HeaderSexualityPreferences    = "sexuality_preferences"
 	HeaderReligion                = "religion"
+	HeaderAttachmentStyle         = "attachment_style"
+
+	// New qualitative profile fields
+	HeaderSenseOfHumor       = "sense_of_humor"
+	HeaderCasualInterests    = "casual_interests"
+	HeaderCommunicationStyle = "communication_style"
+	HeaderLifeSituation      = "life_situation"
+
+	// New quantitative profile fields
+	HeaderFinancialRiskTolerance = "financial_risk_tolerance"
+	HeaderAbstractVsConcrete     = "abstract_vs_concrete"
 )
 
 // Required headers for CSV validation - Niina's flat format
@@ -397,6 +408,23 @@ func parseRow(record []string, headerMap map[string]int, rowNum int) (*Populatio
 		return nil, err
 	}
 
+	// Parse optional new quantitative fields
+	var financialRiskTolerance, abstractVsConcrete null.Float64
+	if v := getValue(HeaderFinancialRiskTolerance); v != "" {
+		parsed, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return nil, fmt.Errorf("row %d: invalid %s '%s': %w", rowNum, HeaderFinancialRiskTolerance, v, err)
+		}
+		financialRiskTolerance = null.Float64From(parsed)
+	}
+	if v := getValue(HeaderAbstractVsConcrete); v != "" {
+		parsed, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return nil, fmt.Errorf("row %d: invalid %s '%s': %w", rowNum, HeaderAbstractVsConcrete, v, err)
+		}
+		abstractVsConcrete = null.Float64From(parsed)
+	}
+
 	// Build ProfileDetails from flat columns
 	profileDetails := &ProfileDetails{
 		// Qualitative fields
@@ -415,6 +443,11 @@ func parseRow(record []string, headerMap map[string]int, rowNum int) (*Populatio
 		FamilyPlanning:             null.StringFrom(getValue(HeaderFamilyPlanning)),
 		IdealDate:                  null.StringFrom(getValue(HeaderIdealDate)),
 		RedGreenFlags:              null.StringFrom(getValue(HeaderRedGreenFlags)),
+		// New qualitative fields
+		SenseOfHumor:       null.StringFrom(getValue(HeaderSenseOfHumor)),
+		CasualInterests:    null.StringFrom(getValue(HeaderCasualInterests)),
+		CommunicationStyle: null.StringFrom(getValue(HeaderCommunicationStyle)),
+		LifeSituation:      null.StringFrom(getValue(HeaderLifeSituation)),
 
 		// Quantitative fields (0-1 floats)
 		ExtroversionSocialEnergy: null.Float64From(extroversion),
@@ -426,11 +459,15 @@ func parseRow(record []string, headerMap map[string]int, rowNum int) (*Populatio
 		EmotionalExpressiveness:  null.Float64From(emotional),
 		SexDrive:                 null.Float64From(sexDrive),
 		GeographicalMobility:     null.Float64From(geoMobility),
+		// New quantitative fields
+		FinancialRiskTolerance: financialRiskTolerance,
+		AbstractVsConcrete:     abstractVsConcrete,
 
 		// Categorical fields
 		ConflictResolutionStyle: null.StringFrom(getValue(HeaderConflictResolutionStyle)),
 		SexualityPreferences:    null.StringFrom(getValue(HeaderSexualityPreferences)),
 		Religion:                null.StringFrom(getValue(HeaderReligion)),
+		AttachmentStyle:         null.StringFrom(getValue(HeaderAttachmentStyle)),
 	}
 
 	row := &PopulationRow{

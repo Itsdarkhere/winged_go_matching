@@ -47,6 +47,10 @@ func (qm *QualitativeMatcher) Qualify(
 		return nil, fmt.Errorf("marshal request data: %w", err)
 	}
 
+	fmt.Println("==== AI BACKEND REQUEST (before send) ====")
+	fmt.Println(string(body))
+	fmt.Println("===========================================")
+
 	reqCtx, err := retryablehttp.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
