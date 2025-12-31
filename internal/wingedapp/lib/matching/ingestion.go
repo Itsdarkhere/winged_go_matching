@@ -87,7 +87,7 @@ func (l *Logic) ingestUsers(ctx context.Context, exec boil.ContextExecutor, user
 }
 
 // createMatchSetForUsers creates a new match set and generates all unique
-// pairings for the given users.
+// pairings for the given users. Skips pairs that have already been matched before.
 func (l *Logic) createMatchSetForUsers(ctx context.Context, exec boil.ContextExecutor, users []User) (*MatchSet, error) {
 	settings, err := l.configStorer.Config(ctx, exec, nil)
 	if err != nil {
@@ -96,6 +96,26 @@ func (l *Logic) createMatchSetForUsers(ctx context.Context, exec boil.ContextExe
 	bytesSettings, err := json.Marshal(settings)
 	if err != nil {
 		return nil, fmt.Errorf("marshal config: %w", err)
+	}
+
+	// Build set of existing pairs to avoid re-matching
+	existingPairs, err := l.getExistingPairs(ctx, exec, users)
+	if err != nil {
+		return nil, fmt.Errorf("get existing pairs: %w", err)
+	}
+
+	// Filter out pairs that already exist
+	allPairs := UserPairsUniqPerm(users)
+	newPairs := make([]UserPair, 0, len(allPairs))
+	for _, up := range allPairs {
+		if !existingPairs[sortedPairKey(up.UserA.ID, up.UserB.ID)] {
+			newPairs = append(newPairs, up)
+		}
+	}
+
+	// No new pairs to create
+	if len(newPairs) == 0 {
+		return nil, nil
 	}
 
 	// create match set
@@ -108,8 +128,8 @@ func (l *Logic) createMatchSetForUsers(ctx context.Context, exec boil.ContextExe
 		return nil, fmt.Errorf("insert match set: %w", err)
 	}
 
-	// create match results
-	for _, up := range UserPairsUniqPerm(users) {
+	// create match results for new pairs only
+	for _, up := range newPairs {
 		if _, err = l.matchResultStorer.Insert(ctx, exec, &InsertMatchResult{
 			MatchSetID:      matchSet.ID,
 			InitiatorUserID: up.UserA.ID,
@@ -120,6 +140,36 @@ func (l *Logic) createMatchSetForUsers(ctx context.Context, exec boil.ContextExe
 	}
 
 	return matchSet, nil
+}
+
+// getExistingPairs fetches all existing match_result pairs for the given users
+// and returns a set of sorted pair keys for O(1) lookup.
+func (l *Logic) getExistingPairs(ctx context.Context, exec boil.ContextExecutor, users []User) (map[string]bool, error) {
+	existingPairs := make(map[string]bool)
+
+	// Fetch all match results (no filter = all historical matches)
+	// This could be optimized to only fetch pairs involving these users,
+	// but for simplicity we fetch all and filter in memory
+	allResults, err := l.matchResultStorer.MatchResults(ctx, exec, &QueryFilterMatchResult{})
+	if err != nil {
+		return nil, fmt.Errorf("fetch all match results: %w", err)
+	}
+
+	for _, mr := range allResults.Data {
+		key := sortedPairKey(mr.InitiatorUserID, mr.ReceiverUserID)
+		existingPairs[key] = true
+	}
+
+	return existingPairs, nil
+}
+
+// sortedPairKey returns a consistent key for a user pair regardless of order.
+// Always puts the smaller UUID first to ensure A-B and B-A produce the same key.
+func sortedPairKey(a, b uuid.UUID) string {
+	if a.String() < b.String() {
+		return a.String() + "-" + b.String()
+	}
+	return b.String() + "-" + a.String()
 }
 
 // AllUsers will return all users in the matching engine.
