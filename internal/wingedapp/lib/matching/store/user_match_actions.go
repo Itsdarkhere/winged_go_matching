@@ -32,10 +32,10 @@ func (s *UserMatchActionsStore) buildUserMatchBaseQuery(f *matching.QueryFilterU
 
 	qMods := []qm.QueryMod{
 		qm.From(matchResultTbl + " mr"),
-		qm.InnerJoin(usersTbl + " ua ON ua.id = mr.user_a_ref_id"),
-		qm.InnerJoin(usersTbl + " ub ON ub.id = mr.user_b_ref_id"),
+		qm.InnerJoin(usersTbl + " ua ON ua.id = mr.initiator_user_ref_id"),
+		qm.InnerJoin(usersTbl + " ub ON ub.id = mr.receiver_user_ref_id"),
 		// Base filters: user must be in match + visibility conditions
-		qm.Where("(mr.user_a_ref_id = ? OR mr.user_b_ref_id = ?)", f.UserID.String(), f.UserID.String()),
+		qm.Where("(mr.initiator_user_ref_id = ? OR mr.receiver_user_ref_id = ?)", f.UserID.String(), f.UserID.String()),
 		qm.Where("mr.is_dropped = true"),
 		qm.Where("mr.is_approved = true"),
 		qm.Where("mr.is_expired = false"),
@@ -48,14 +48,14 @@ func (s *UserMatchActionsStore) buildUserMatchBaseQuery(f *matching.QueryFilterU
 
 	if f.YourAction.Valid {
 		qMods = append(qMods, qm.Where(
-			fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_a_action ELSE mr.user_b_action END = ?`, f.UserID.String()),
+			fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.initiator_action ELSE mr.receiver_action END = ?`, f.UserID.String()),
 			f.YourAction.String,
 		))
 	}
 
 	if f.PartnerAction.Valid {
 		qMods = append(qMods, qm.Where(
-			fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_b_action ELSE mr.user_a_action END = ?`, f.UserID.String()),
+			fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.receiver_action ELSE mr.initiator_action END = ?`, f.UserID.String()),
 			f.PartnerAction.String,
 		))
 	}
@@ -63,10 +63,10 @@ func (s *UserMatchActionsStore) buildUserMatchBaseQuery(f *matching.QueryFilterU
 	if f.MutualProposal.Valid {
 		if f.MutualProposal.Bool {
 			// Mutual proposal = both users have proposed (regardless of date instance)
-			qMods = append(qMods, qm.Where("mr.user_a_action = 'Proposed' AND mr.user_b_action = 'Proposed'"))
+			qMods = append(qMods, qm.Where("mr.initiator_action = 'Proposed' AND mr.receiver_action = 'Proposed'"))
 		} else {
 			// Not mutual = at least one user hasn't proposed yet
-			qMods = append(qMods, qm.Where("mr.user_a_action != 'Proposed' OR mr.user_b_action != 'Proposed'"))
+			qMods = append(qMods, qm.Where("mr.initiator_action != 'Proposed' OR mr.receiver_action != 'Proposed'"))
 		}
 	}
 
@@ -77,14 +77,14 @@ func (s *UserMatchActionsStore) buildUserMatchBaseQuery(f *matching.QueryFilterU
 	// Unseen filter (seen_at IS NULL)
 	if f.Unseen.Valid && f.Unseen.Bool {
 		qMods = append(qMods, qm.Where(
-			fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_a_seen_at IS NULL ELSE mr.user_b_seen_at IS NULL END`, f.UserID.String()),
+			fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.initiator_seen_at IS NULL ELSE mr.receiver_seen_at IS NULL END`, f.UserID.String()),
 		))
 	}
 
 	// SeenOnly filter (seen_at IS NOT NULL)
 	if f.SeenOnly.Valid && f.SeenOnly.Bool {
 		qMods = append(qMods, qm.Where(
-			fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_a_seen_at IS NOT NULL ELSE mr.user_b_seen_at IS NOT NULL END`, f.UserID.String()),
+			fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.initiator_seen_at IS NOT NULL ELSE mr.receiver_seen_at IS NOT NULL END`, f.UserID.String()),
 		))
 	}
 
@@ -121,20 +121,20 @@ func (s *UserMatchActionsStore) UserMatches(
 	// Build select columns
 	selectCols := []string{
 		"mr.id AS id",
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_b_ref_id ELSE mr.user_a_ref_id END AS partner_id`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN ub.first_name ELSE ua.first_name END AS partner_name`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN EXTRACT(YEAR FROM AGE(ub.birthday))::INTEGER ELSE EXTRACT(YEAR FROM AGE(ua.birthday))::INTEGER END AS partner_age`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN ub.gender ELSE ua.gender END AS partner_gender`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN ub.sexuality ELSE ua.sexuality END AS partner_sexuality`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_a_action ELSE mr.user_b_action END AS your_action`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_b_action ELSE mr.user_a_action END AS partner_action`, f.UserID.String()),
-		"(mr.user_a_action = 'Proposed' AND mr.user_b_action = 'Proposed') AS mutual_proposal",
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.receiver_user_ref_id ELSE mr.initiator_user_ref_id END AS partner_id`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN ub.first_name ELSE ua.first_name END AS partner_name`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN EXTRACT(YEAR FROM AGE(ub.birthday))::INTEGER ELSE EXTRACT(YEAR FROM AGE(ua.birthday))::INTEGER END AS partner_age`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN ub.gender ELSE ua.gender END AS partner_gender`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN ub.sexuality ELSE ua.sexuality END AS partner_sexuality`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.initiator_action ELSE mr.receiver_action END AS your_action`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.receiver_action ELSE mr.initiator_action END AS partner_action`, f.UserID.String()),
+		"(mr.initiator_action = 'Proposed' AND mr.receiver_action = 'Proposed') AS mutual_proposal",
 		"mr.current_date_instance_id AS date_instance_id",
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN mr.user_a_seen_at ELSE mr.user_b_seen_at END AS seen_at`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN mr.initiator_seen_at ELSE mr.receiver_seen_at END AS seen_at`, f.UserID.String()),
 		"mr.expires_at AS expires_at",
 		"mr.dropped_ts AS dropped_at",
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN ua.supabase_id ELSE ub.supabase_id END AS your_supabase_id`, f.UserID.String()),
-		fmt.Sprintf(`CASE WHEN mr.user_a_ref_id = '%s' THEN ub.supabase_id ELSE ua.supabase_id END AS partner_supabase_id`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN ua.supabase_id ELSE ub.supabase_id END AS your_supabase_id`, f.UserID.String()),
+		fmt.Sprintf(`CASE WHEN mr.initiator_user_ref_id = '%s' THEN ub.supabase_id ELSE ua.supabase_id END AS partner_supabase_id`, f.UserID.String()),
 	}
 
 	// Start with select, then add base query
@@ -258,8 +258,8 @@ func (s *UserMatchActionsStore) Update(
 	}
 
 	// Determine if user is A or B
-	isUserA := matchResult.UserARefID == params.UserID.String()
-	isUserB := matchResult.UserBRefID == params.UserID.String()
+	isUserA := matchResult.InitiatorUserRefID == params.UserID.String()
+	isUserB := matchResult.ReceiverUserRefID == params.UserID.String()
 	if !isUserA && !isUserB {
 		return fmt.Errorf("user %s is not part of match %s", params.UserID, params.MatchResultID)
 	}
@@ -267,18 +267,18 @@ func (s *UserMatchActionsStore) Update(
 	// Update action category if provided
 	if params.ActionCategoryID.Valid {
 		if isUserA {
-			matchResult.UserAAction = params.ActionCategoryID.String
+			matchResult.InitiatorAction = params.ActionCategoryID.String
 		} else {
-			matchResult.UserBAction = params.ActionCategoryID.String
+			matchResult.ReceiverAction = params.ActionCategoryID.String
 		}
 	}
 
 	// Update seen_at if provided
 	if params.SeenAt.Valid {
 		if isUserA {
-			matchResult.UserASeenAt = params.SeenAt
+			matchResult.InitiatorSeenAt = params.SeenAt
 		} else {
-			matchResult.UserBSeenAt = params.SeenAt
+			matchResult.ReceiverSeenAt = params.SeenAt
 		}
 	}
 
@@ -313,13 +313,13 @@ func (s *UserMatchActionsStore) UpdateSeenBatch(
 	now := time.Now()
 	userIDStr := userID.String()
 
-	// Update user_a_seen_at for matches where user is user_a
+	// Update initiator_seen_at for matches where user is user_a
 	queryA := fmt.Sprintf(`
 		UPDATE match_result
-		SET user_a_seen_at = $%d
+		SET initiator_seen_at = $%d
 		WHERE id IN (%s)
-		  AND user_a_ref_id = $%d
-		  AND user_a_seen_at IS NULL`,
+		  AND initiator_user_ref_id = $%d
+		  AND initiator_seen_at IS NULL`,
 		len(matchIDs)+1,
 		strings.Join(placeholders, ", "),
 		len(matchIDs)+2,
@@ -327,16 +327,16 @@ func (s *UserMatchActionsStore) UpdateSeenBatch(
 	argsA := append(args, now, userIDStr)
 
 	if _, err := exec.ExecContext(ctx, queryA, argsA...); err != nil {
-		return fmt.Errorf("update user_a_seen_at batch: %w", err)
+		return fmt.Errorf("update initiator_seen_at batch: %w", err)
 	}
 
-	// Update user_b_seen_at for matches where user is user_b
+	// Update receiver_seen_at for matches where user is user_b
 	queryB := fmt.Sprintf(`
 		UPDATE match_result
-		SET user_b_seen_at = $%d
+		SET receiver_seen_at = $%d
 		WHERE id IN (%s)
-		  AND user_b_ref_id = $%d
-		  AND user_b_seen_at IS NULL`,
+		  AND receiver_user_ref_id = $%d
+		  AND receiver_seen_at IS NULL`,
 		len(matchIDs)+1,
 		strings.Join(placeholders, ", "),
 		len(matchIDs)+2,
@@ -344,7 +344,7 @@ func (s *UserMatchActionsStore) UpdateSeenBatch(
 	argsB := append(args, now, userIDStr)
 
 	if _, err := exec.ExecContext(ctx, queryB, argsB...); err != nil {
-		return fmt.Errorf("update user_b_seen_at batch: %w", err)
+		return fmt.Errorf("update receiver_seen_at batch: %w", err)
 	}
 
 	return nil
@@ -356,10 +356,10 @@ type looseCandidateMatch struct {
 	IsDropped   bool
 	IsApproved  bool
 	IsExpired   bool
-	UserAAction string
-	UserBAction string
-	UserARefID  string
-	UserBRefID  string
+	InitiatorAction string
+	ReceiverAction string
+	InitiatorUserRefID  string
+	ReceiverUserRefID  string
 }
 
 // logNoMatchDiagnosis runs a looser query and logs why filters excluded results.
@@ -403,13 +403,13 @@ func (s *UserMatchActionsStore) logNoMatchDiagnosis(
 			"mr.is_dropped",
 			"mr.is_approved",
 			"mr.is_expired",
-			"mr.user_a_action",
-			"mr.user_b_action",
-			"mr.user_a_ref_id",
-			"mr.user_b_ref_id",
+			"mr.initiator_action",
+			"mr.receiver_action",
+			"mr.initiator_user_ref_id",
+			"mr.receiver_user_ref_id",
 		),
 		qm.From(pgmodel.TableNames.MatchResult + " mr"),
-		qm.Where("(mr.user_a_ref_id = ? OR mr.user_b_ref_id = ?)", f.UserID.String(), f.UserID.String()),
+		qm.Where("(mr.initiator_user_ref_id = ? OR mr.receiver_user_ref_id = ?)", f.UserID.String(), f.UserID.String()),
 	}
 
 	var candidates []looseCandidateMatch
@@ -441,12 +441,12 @@ func (s *UserMatchActionsStore) logNoMatchDiagnosis(
 		}
 
 		// Determine if user is A or B
-		isUserA := c.UserARefID == f.UserID.String()
-		yourAction := c.UserAAction
-		partnerAction := c.UserBAction
+		isUserA := c.InitiatorUserRefID == f.UserID.String()
+		yourAction := c.InitiatorAction
+		partnerAction := c.ReceiverAction
 		if !isUserA {
-			yourAction = c.UserBAction
-			partnerAction = c.UserAAction
+			yourAction = c.ReceiverAction
+			partnerAction = c.InitiatorAction
 		}
 
 		// Optional filters
@@ -457,9 +457,9 @@ func (s *UserMatchActionsStore) logNoMatchDiagnosis(
 			failedFilters = append(failedFilters, fmt.Sprintf("partner_action=%s (needs %s)", partnerAction, f.PartnerAction.String))
 		}
 		if f.MutualProposal.Valid {
-			isMutual := c.UserAAction == "Proposed" && c.UserBAction == "Proposed"
+			isMutual := c.InitiatorAction == "Proposed" && c.ReceiverAction == "Proposed"
 			if f.MutualProposal.Bool && !isMutual {
-				failedFilters = append(failedFilters, fmt.Sprintf("mutual_proposal=false (user_a=%s, user_b=%s)", c.UserAAction, c.UserBAction))
+				failedFilters = append(failedFilters, fmt.Sprintf("mutual_proposal=false (user_a=%s, user_b=%s)", c.InitiatorAction, c.ReceiverAction))
 			} else if !f.MutualProposal.Bool && isMutual {
 				failedFilters = append(failedFilters, "mutual_proposal=true (filter wants false)")
 			}
@@ -474,8 +474,8 @@ func (s *UserMatchActionsStore) logNoMatchDiagnosis(
 				applog.F("is_dropped", c.IsDropped),
 				applog.F("is_approved", c.IsApproved),
 				applog.F("is_expired", c.IsExpired),
-				applog.F("user_a_action", c.UserAAction),
-				applog.F("user_b_action", c.UserBAction),
+				applog.F("initiator_action", c.InitiatorAction),
+				applog.F("receiver_action", c.ReceiverAction),
 				applog.F("failed_filters", failedFilters),
 			)
 		}

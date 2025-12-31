@@ -160,8 +160,8 @@ type MatchResultPaginated struct {
 type MatchResult struct {
 	ID                   uuid.UUID   `boil:"id" json:"id"`
 	MatchSetID           uuid.UUID   `boil:"match_set_id" json:"match_set_id"`
-	UserAID              uuid.UUID   `boil:"user_a_id" json:"user_a_id"`
-	UserBID              uuid.UUID   `boil:"user_b_id" json:"user_b_id"`
+	InitiatorUserID      uuid.UUID   `boil:"initiator_user_id" json:"initiator_user_id"`
+	ReceiverUserID       uuid.UUID   `boil:"receiver_user_id" json:"receiver_user_id"`
 	QualifierResults     null.JSON   `boil:"qualifier_results" json:"qualifier_results,omitempty"`
 	MatchedQualitatively null.Bool   `boil:"matched_qualitatively" json:"matched_qualitatively"`
 	IsPossibleMatch      bool        `boil:"is_possible_match" json:"is_possible_match"`
@@ -170,10 +170,10 @@ type MatchResult struct {
 	UserLifeCycleStatus  null.String `boil:"user_lifecycle_status" json:"user_lifecycle_status,omitempty"`
 
 	/* enriched admin fields */
-	UserADetails *User          `json:"user_a_details,omitempty"`
-	UserBDetails *User          `json:"user_b_details,omitempty"`
-	UserAProfile *PersonProfile `json:"user_a_profile,omitempty"`
-	UserBProfile *PersonProfile `json:"user_b_profile,omitempty"`
+	InitiatorUserDetails *User          `json:"initiator_user_details,omitempty"`
+	ReceiverUserDetails  *User          `json:"receiver_user_details,omitempty"`
+	InitiatorUserProfile *PersonProfile `json:"initiator_user_profile,omitempty"`
+	ReceiverUserProfile  *PersonProfile `json:"receiver_user_profile,omitempty"`
 }
 
 type QualifierType string
@@ -328,15 +328,15 @@ type QueryFilterMatchResult struct {
 	ID         null.String
 	MatchSetID null.String
 
-	// User filters - UserID matches EITHER user_a OR user_b (OR condition)
-	UserID  null.String // matches user as either user_a OR user_b
-	UserAID null.String // matches user as user_a specifically
-	UserBID null.String // matches user as user_b specifically
+	// User filters - UserID matches EITHER initiator OR receiver (OR condition)
+	UserID           null.String // matches user as either initiator OR receiver
+	InitiatorUserID  null.String // matches user as initiator specifically
+	ReceiverUserID   null.String // matches user as receiver specifically
 
 	// Status filters (now string enum values instead of category UUIDs)
 	MatchLifecycleStatus null.String // String enum - lifecycle status
-	UserAAction          null.String // String enum - user A's action (Pending/Proposed/Passed)
-	UserBAction          null.String // String enum - user B's action (Pending/Proposed/Passed)
+	InitiatorAction          null.String // String enum - user A's action (Pending/Proposed/Passed)
+	ReceiverAction          null.String // String enum - user B's action (Pending/Proposed/Passed)
 
 	// Boolean filters
 	MatchedQualitatively null.Bool
@@ -356,10 +356,10 @@ type QueryFilterMatchResult struct {
 }
 
 type InsertMatchResult struct {
-	MatchSetID uuid.UUID `boil:"match_set_id"`
-	UserAID    uuid.UUID `boil:"user_a_id"`
-	UserBID    uuid.UUID `boil:"user_b_id"`
-	StatusID   string    `boil:"status_id"`
+	MatchSetID      uuid.UUID `boil:"match_set_id"`
+	InitiatorUserID uuid.UUID `boil:"initiator_user_id"`
+	ReceiverUserID  uuid.UUID `boil:"receiver_user_id"`
+	StatusID        string    `boil:"status_id"`
 }
 
 type UpdateMatchResult struct {

@@ -21,10 +21,10 @@ func (l *Logic) DropOneMatchPerUser(ctx context.Context, exec boil.ContextExecut
 
 	droppedUsers := make(map[string]bool)
 	for _, mr := range matchResults {
-		userA := mr.UserAID.String()
-		userB := mr.UserBID.String()
+		initiator := mr.InitiatorUserID.String()
+		receiver := mr.ReceiverUserID.String()
 
-		if droppedUsers[userA] || droppedUsers[userB] {
+		if droppedUsers[initiator] || droppedUsers[receiver] {
 			continue
 		}
 
@@ -33,8 +33,8 @@ func (l *Logic) DropOneMatchPerUser(ctx context.Context, exec boil.ContextExecut
 		}
 
 		// record user-pair have now dropped a match
-		droppedUsers[userA] = true
-		droppedUsers[userB] = true
+		droppedUsers[initiator] = true
+		droppedUsers[receiver] = true
 	}
 
 	return nil

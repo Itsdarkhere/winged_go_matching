@@ -111,9 +111,9 @@ func (l *Logic) createMatchSetForUsers(ctx context.Context, exec boil.ContextExe
 	// create match results
 	for _, up := range UserPairsUniqPerm(users) {
 		if _, err = l.matchResultStorer.Insert(ctx, exec, &InsertMatchResult{
-			MatchSetID: matchSet.ID,
-			UserAID:    up.UserA.ID,
-			UserBID:    up.UserB.ID,
+			MatchSetID:      matchSet.ID,
+			InitiatorUserID: up.UserA.ID,
+			ReceiverUserID:  up.UserB.ID,
 		}); err != nil {
 			return nil, fmt.Errorf("insert match participant: %w", err)
 		}

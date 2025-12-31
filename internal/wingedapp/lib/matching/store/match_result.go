@@ -39,8 +39,8 @@ func (s *MatchResultStore) matchResultsRows(
 		qm.Select(
 			"mr."+matchResultCols.ID+" AS id",
 			"mr."+matchResultCols.MatchSetRefID+" AS match_set_id",
-			"mr."+matchResultCols.UserARefID+" AS user_a_id",
-			"mr."+matchResultCols.UserBRefID+" AS user_b_id",
+			"mr."+matchResultCols.InitiatorUserRefID+" AS initiator_user_id",
+			"mr."+matchResultCols.ReceiverUserRefID+" AS receiver_user_id",
 			"mr."+matchResultCols.IsExpired+" AS is_expired",
 			"mr."+matchResultCols.IsPossibleMatch+" AS is_possible_match",
 			"mr."+matchResultCols.IsApproved+" AS is_approved",
@@ -134,10 +134,10 @@ func (s *MatchResultStore) Insert(
 	pgRes, err := s.repo.InsertMatchResult(ctx, exec, &repo.InsertMatchResult{
 		MatchSetRefID:        inserter.MatchSetID.String(),
 		MatchLifecycleStatus: string(enums.MatchLifecycleStatusScheduling), // Default to Scheduling
-		UserARefID:           inserter.UserAID.String(),
-		UserBRefID:           inserter.UserBID.String(),
-		UserAAction:          string(enums.MatchUserActionPending), // Default to Pending
-		UserBAction:          string(enums.MatchUserActionPending), // Default to Pending
+		InitiatorUserRefID:   inserter.InitiatorUserID.String(),
+		ReceiverUserRefID:    inserter.ReceiverUserID.String(),
+		InitiatorAction:          string(enums.MatchUserActionPending), // Default to Pending
+		ReceiverAction:          string(enums.MatchUserActionPending), // Default to Pending
 	})
 	if err != nil {
 		return nil, fmt.Errorf("insert match result: %w", err)
@@ -151,20 +151,20 @@ func (s *MatchResultStore) Insert(
 	if err != nil {
 		return nil, fmt.Errorf("parse match_set_ref_id: %w", err)
 	}
-	uaID, err := uuid.Parse(pgRes.UserARefID)
+	initiatorID, err := uuid.Parse(pgRes.InitiatorUserRefID)
 	if err != nil {
-		return nil, fmt.Errorf("parse user_a_ref_id: %w", err)
+		return nil, fmt.Errorf("parse initiator_user_ref_id: %w", err)
 	}
-	ubID, err := uuid.Parse(pgRes.UserBRefID)
+	receiverID, err := uuid.Parse(pgRes.ReceiverUserRefID)
 	if err != nil {
-		return nil, fmt.Errorf("parse user_b_ref_id: %w", err)
+		return nil, fmt.Errorf("parse receiver_user_ref_id: %w", err)
 	}
 
 	return &matching.MatchResult{
-		ID:         id,
-		MatchSetID: msID,
-		UserAID:    uaID,
-		UserBID:    ubID,
+		ID:              id,
+		MatchSetID:      msID,
+		InitiatorUserID: initiatorID,
+		ReceiverUserID:  receiverID,
 	}, nil
 }
 
@@ -223,22 +223,22 @@ func qModsMatchResult(f *matching.QueryFilterMatchResult, paginated bool) []qm.Q
 		qMods = append(qMods, qm.Where("mr."+mrCols.MatchSetRefID+" = ?", f.MatchSetID.String))
 	}
 
-	// UserID matches user as EITHER user_a OR user_b (OR condition)
+	// UserID matches user as EITHER initiator OR receiver (OR condition)
 	if f.UserID.Valid {
 		qMods = append(qMods, qm.Where(
-			"(mr."+mrCols.UserARefID+" = ? OR mr."+mrCols.UserBRefID+" = ?)",
+			"(mr."+mrCols.InitiatorUserRefID+" = ? OR mr."+mrCols.ReceiverUserRefID+" = ?)",
 			f.UserID.String, f.UserID.String,
 		))
 	}
 
-	// UserAID matches user_a specifically
-	if f.UserAID.Valid {
-		qMods = append(qMods, qm.Where("mr."+mrCols.UserARefID+" = ?", f.UserAID.String))
+	// InitiatorUserID matches initiator specifically
+	if f.InitiatorUserID.Valid {
+		qMods = append(qMods, qm.Where("mr."+mrCols.InitiatorUserRefID+" = ?", f.InitiatorUserID.String))
 	}
 
-	// UserBID matches user_b specifically
-	if f.UserBID.Valid {
-		qMods = append(qMods, qm.Where("mr."+mrCols.UserBRefID+" = ?", f.UserBID.String))
+	// ReceiverUserID matches receiver specifically
+	if f.ReceiverUserID.Valid {
+		qMods = append(qMods, qm.Where("mr."+mrCols.ReceiverUserRefID+" = ?", f.ReceiverUserID.String))
 	}
 
 	// Status filters - now using string enum columns directly
@@ -246,12 +246,12 @@ func qModsMatchResult(f *matching.QueryFilterMatchResult, paginated bool) []qm.Q
 		qMods = append(qMods, qm.Where("mr."+mrCols.MatchLifecycleStatus+" = ?", f.MatchLifecycleStatus.String))
 	}
 
-	if f.UserAAction.Valid {
-		qMods = append(qMods, qm.Where("mr."+mrCols.UserAAction+" = ?", f.UserAAction.String))
+	if f.InitiatorAction.Valid {
+		qMods = append(qMods, qm.Where("mr."+mrCols.InitiatorAction+" = ?", f.InitiatorAction.String))
 	}
 
-	if f.UserBAction.Valid {
-		qMods = append(qMods, qm.Where("mr."+mrCols.UserBAction+" = ?", f.UserBAction.String))
+	if f.ReceiverAction.Valid {
+		qMods = append(qMods, qm.Where("mr."+mrCols.ReceiverAction+" = ?", f.ReceiverAction.String))
 	}
 
 	// Boolean filters

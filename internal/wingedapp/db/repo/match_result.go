@@ -14,12 +14,10 @@ type InsertMatchResult struct {
 	/* required FKs */
 	MatchSetRefID        string
 	MatchLifecycleStatus string // String enum (optional at insert, defaults to empty)
-	UserARefID           string
-	UserBRefID           string
-	InitiatorUserRefID   string // initiator of the match - defaults to UserARefID if empty
-	ReceiverUserRefID    string // receiver of the match - defaults to UserBRefID if empty
-	UserAAction          string // String enum - defaults to Pending
-	UserBAction          string // String enum - defaults to Pending
+	InitiatorUserRefID   string // initiator of the match
+	ReceiverUserRefID    string // receiver of the match
+	InitiatorAction          string // String enum - defaults to Pending
+	ReceiverAction          string // String enum - defaults to Pending
 }
 
 func (s *Store) InsertMatchResult(
@@ -31,29 +29,19 @@ func (s *Store) InsertMatchResult(
 	if inserter.MatchSetRefID == "" {
 		return nil, fmt.Errorf("match_set_ref_id is required")
 	}
-	if inserter.UserARefID == "" {
-		return nil, fmt.Errorf("user_a_ref_id is required")
+	if inserter.InitiatorUserRefID == "" {
+		return nil, fmt.Errorf("initiator_user_ref_id is required")
 	}
-	if inserter.UserBRefID == "" {
-		return nil, fmt.Errorf("user_b_ref_id is required")
-	}
-
-	/* set default initiator/receiver to user A/B if not provided */
-	initiatorID := inserter.InitiatorUserRefID
-	if initiatorID == "" {
-		initiatorID = inserter.UserARefID
-	}
-	receiverID := inserter.ReceiverUserRefID
-	if receiverID == "" {
-		receiverID = inserter.UserBRefID
+	if inserter.ReceiverUserRefID == "" {
+		return nil, fmt.Errorf("receiver_user_ref_id is required")
 	}
 
 	/* Set default actions to Pending if not provided */
-	userAAction := inserter.UserAAction
+	userAAction := inserter.InitiatorAction
 	if userAAction == "" {
 		userAAction = string(enums.MatchUserActionPending)
 	}
-	userBAction := inserter.UserBAction
+	userBAction := inserter.ReceiverAction
 	if userBAction == "" {
 		userBAction = string(enums.MatchUserActionPending)
 	}
@@ -61,12 +49,10 @@ func (s *Store) InsertMatchResult(
 	/* only insert fields from the initial set */
 	matchSet := pgmodel.MatchResult{
 		MatchSetRefID:      inserter.MatchSetRefID,
-		UserARefID:         inserter.UserARefID,
-		UserBRefID:         inserter.UserBRefID,
-		InitiatorUserRefID: initiatorID,
-		ReceiverUserRefID:  receiverID,
-		UserAAction:        userAAction,
-		UserBAction:        userBAction,
+		InitiatorUserRefID: inserter.InitiatorUserRefID,
+		ReceiverUserRefID:  inserter.ReceiverUserRefID,
+		InitiatorAction:        userAAction,
+		ReceiverAction:        userBAction,
 	}
 
 	// MatchLifecycleStatus is optional (nullable)
@@ -121,23 +107,23 @@ func (s *Store) UpdateMatchResult(
 	}
 
 	// Per-user action fields (string enums)
-	if updater.UserAAction.Valid {
-		matchResult.UserAAction = updater.UserAAction.String
+	if updater.InitiatorAction.Valid {
+		matchResult.InitiatorAction = updater.InitiatorAction.String
 	}
-	if updater.UserAActionAt.Valid {
-		matchResult.UserAActionAt = updater.UserAActionAt
+	if updater.InitiatorActionAt.Valid {
+		matchResult.InitiatorActionAt = updater.InitiatorActionAt
 	}
-	if updater.UserASeenAt.Valid {
-		matchResult.UserASeenAt = updater.UserASeenAt
+	if updater.InitiatorSeenAt.Valid {
+		matchResult.InitiatorSeenAt = updater.InitiatorSeenAt
 	}
-	if updater.UserBAction.Valid {
-		matchResult.UserBAction = updater.UserBAction.String
+	if updater.ReceiverAction.Valid {
+		matchResult.ReceiverAction = updater.ReceiverAction.String
 	}
-	if updater.UserBActionAt.Valid {
-		matchResult.UserBActionAt = updater.UserBActionAt
+	if updater.ReceiverActionAt.Valid {
+		matchResult.ReceiverActionAt = updater.ReceiverActionAt
 	}
-	if updater.UserBSeenAt.Valid {
-		matchResult.UserBSeenAt = updater.UserBSeenAt
+	if updater.ReceiverSeenAt.Valid {
+		matchResult.ReceiverSeenAt = updater.ReceiverSeenAt
 	}
 	if updater.ExpiresAt.Valid {
 		matchResult.ExpiresAt = updater.ExpiresAt
@@ -165,12 +151,12 @@ type UpdateMatchResult struct {
 	IsPossibleMatch      null.Bool
 
 	// Per-user action fields (string enums)
-	UserAAction   null.String // String enum
-	UserAActionAt null.Time
-	UserASeenAt   null.Time
-	UserBAction   null.String // String enum
-	UserBActionAt null.Time
-	UserBSeenAt   null.Time
+	InitiatorAction   null.String // String enum
+	InitiatorActionAt null.Time
+	InitiatorSeenAt   null.Time
+	ReceiverAction   null.String // String enum
+	ReceiverActionAt null.Time
+	ReceiverSeenAt   null.Time
 	ExpiresAt     null.Time
 }
 

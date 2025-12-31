@@ -17,14 +17,14 @@ import (
 // ProcessMatchResult will process a validatedUserMatchingDetails pair, and return a match result.
 // aiExec is the executor for ai_backend database (for profile lookups).
 func (l *Logic) ProcessMatchResult(ctx context.Context, exec boil.ContextExecutor, aiExec boil.ContextExecutor, matchResult *MatchResult) (*MatchResult, error) {
-	userA, err := l.validatedUserMatchingDetails(ctx, exec, matchResult.UserAID)
+	initiatorUser, err := l.validatedUserMatchingDetails(ctx, exec, matchResult.InitiatorUserID)
 	if err != nil {
-		return nil, fmt.Errorf("fetch first validatedUserMatchingDetails pair: %w", err)
+		return nil, fmt.Errorf("fetch initiator user matching details: %w", err)
 	}
 
-	userB, err := l.validatedUserMatchingDetails(ctx, exec, matchResult.UserBID)
+	receiverUser, err := l.validatedUserMatchingDetails(ctx, exec, matchResult.ReceiverUserID)
 	if err != nil {
-		return nil, fmt.Errorf("fetch second validatedUserMatchingDetails pair: %w", err)
+		return nil, fmt.Errorf("fetch receiver user matching details: %w", err)
 	}
 
 	// TODO: get config from MatchSet, only hesitation is you need fixed versioned fields,
@@ -46,8 +46,8 @@ func (l *Logic) ProcessMatchResult(ctx context.Context, exec boil.ContextExecuto
 
 	res := hardQualifiers.ExecuteAll(ctx, config, qualifierResults, &QualifierParameters{
 		config: config,
-		UserA:  userA,
-		UserB:  userB,
+		UserA:  initiatorUser,
+		UserB:  receiverUser,
 		// keep expanding this as needed
 	})
 
@@ -69,19 +69,19 @@ func (l *Logic) ProcessMatchResult(ctx context.Context, exec boil.ContextExecuto
 	}
 
 	/* test qualitative matches if hard filters passed */
-	userAProf, err := l.profileStorer.Profile(ctx, aiExec, userA.ID)
+	initiatorProf, err := l.profileStorer.Profile(ctx, aiExec, initiatorUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("fetch user A profile: %w", err)
+		return nil, fmt.Errorf("fetch initiator user profile: %w", err)
 	}
 
-	userBProf, err := l.profileStorer.Profile(ctx, aiExec, userB.ID)
+	receiverProf, err := l.profileStorer.Profile(ctx, aiExec, receiverUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("fetch user B profile: %w", err)
+		return nil, fmt.Errorf("fetch receiver user profile: %w", err)
 	}
 
 	matchCompatibilityResult, err := l.qualitativeQuantifier.Qualify(ctx, &QualitativeMatchRequest{
-		Romeo:  userAProf,
-		Juliet: userBProf,
+		Romeo:  initiatorProf,
+		Juliet: receiverProf,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("qualitative quantify: %w", err)
@@ -178,8 +178,8 @@ func (l *Logic) usersWithoutPendingMatches(ctx context.Context, exec boil.Contex
 func (l *Logic) extractUsersFromMatches(matches []MatchResult) map[uuid.UUID]bool {
 	seen := make(map[uuid.UUID]bool)
 	for _, mr := range matches {
-		seen[mr.UserAID] = true
-		seen[mr.UserBID] = true
+		seen[mr.InitiatorUserID] = true
+		seen[mr.ReceiverUserID] = true
 	}
 	return seen
 }

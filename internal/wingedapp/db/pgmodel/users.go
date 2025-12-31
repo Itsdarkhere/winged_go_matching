@@ -1391,7 +1391,7 @@ func (o *User) ReceiverUserRefMatchResults(mods ...qm.QueryMod) matchResultQuery
 	return MatchResults(queryMods...)
 }
 
-// UserARefMatchResults retrieves all the match_result's MatchResults with an executor via user_a_ref_id column.
+// UserARefMatchResults retrieves all the match_result's MatchResults with an executor via initiator_user_ref_id column.
 func (o *User) UserARefMatchResults(mods ...qm.QueryMod) matchResultQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
@@ -1399,13 +1399,13 @@ func (o *User) UserARefMatchResults(mods ...qm.QueryMod) matchResultQuery {
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"match_result\".\"user_a_ref_id\"=?", o.ID),
+		qm.Where("\"match_result\".\"initiator_user_ref_id\"=?", o.ID),
 	)
 
 	return MatchResults(queryMods...)
 }
 
-// UserBRefMatchResults retrieves all the match_result's MatchResults with an executor via user_b_ref_id column.
+// UserBRefMatchResults retrieves all the match_result's MatchResults with an executor via receiver_user_ref_id column.
 func (o *User) UserBRefMatchResults(mods ...qm.QueryMod) matchResultQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
@@ -1413,7 +1413,7 @@ func (o *User) UserBRefMatchResults(mods ...qm.QueryMod) matchResultQuery {
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"match_result\".\"user_b_ref_id\"=?", o.ID),
+		qm.Where("\"match_result\".\"receiver_user_ref_id\"=?", o.ID),
 	)
 
 	return MatchResults(queryMods...)
@@ -2880,7 +2880,7 @@ func (userL) LoadUserARefMatchResults(ctx context.Context, e boil.ContextExecuto
 
 	query := NewQuery(
 		qm.From(`match_result`),
-		qm.WhereIn(`match_result.user_a_ref_id in ?`, argsSlice...),
+		qm.WhereIn(`match_result.initiator_user_ref_id in ?`, argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -2923,7 +2923,7 @@ func (userL) LoadUserARefMatchResults(ctx context.Context, e boil.ContextExecuto
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.ID == foreign.UserARefID {
+			if local.ID == foreign.InitiatorUserRefID {
 				local.R.UserARefMatchResults = append(local.R.UserARefMatchResults, foreign)
 				if foreign.R == nil {
 					foreign.R = &matchResultR{}
@@ -2993,7 +2993,7 @@ func (userL) LoadUserBRefMatchResults(ctx context.Context, e boil.ContextExecuto
 
 	query := NewQuery(
 		qm.From(`match_result`),
-		qm.WhereIn(`match_result.user_b_ref_id in ?`, argsSlice...),
+		qm.WhereIn(`match_result.receiver_user_ref_id in ?`, argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -3036,7 +3036,7 @@ func (userL) LoadUserBRefMatchResults(ctx context.Context, e boil.ContextExecuto
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.ID == foreign.UserBRefID {
+			if local.ID == foreign.ReceiverUserRefID {
 				local.R.UserBRefMatchResults = append(local.R.UserBRefMatchResults, foreign)
 				if foreign.R == nil {
 					foreign.R = &matchResultR{}
@@ -5661,14 +5661,14 @@ func (o *User) AddUserARefMatchResults(ctx context.Context, exec boil.ContextExe
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.UserARefID = o.ID
+			rel.InitiatorUserRefID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
 				"UPDATE \"match_result\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_a_ref_id"}),
+				strmangle.SetParamNames("\"", "\"", 1, []string{"initiator_user_ref_id"}),
 				strmangle.WhereClause("\"", "\"", 2, matchResultPrimaryKeyColumns),
 			)
 			values := []interface{}{o.ID, rel.ID}
@@ -5682,7 +5682,7 @@ func (o *User) AddUserARefMatchResults(ctx context.Context, exec boil.ContextExe
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.UserARefID = o.ID
+			rel.InitiatorUserRefID = o.ID
 		}
 	}
 
@@ -5714,14 +5714,14 @@ func (o *User) AddUserBRefMatchResults(ctx context.Context, exec boil.ContextExe
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.UserBRefID = o.ID
+			rel.ReceiverUserRefID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
 				"UPDATE \"match_result\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_b_ref_id"}),
+				strmangle.SetParamNames("\"", "\"", 1, []string{"receiver_user_ref_id"}),
 				strmangle.WhereClause("\"", "\"", 2, matchResultPrimaryKeyColumns),
 			)
 			values := []interface{}{o.ID, rel.ID}
@@ -5735,7 +5735,7 @@ func (o *User) AddUserBRefMatchResults(ctx context.Context, exec boil.ContextExe
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.UserBRefID = o.ID
+			rel.ReceiverUserRefID = o.ID
 		}
 	}
 

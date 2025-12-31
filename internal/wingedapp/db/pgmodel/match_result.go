@@ -26,19 +26,17 @@ import (
 type MatchResult struct {
 	ID                    string      `boil:"id" json:"id" toml:"id" yaml:"id"`
 	MatchSetRefID         string      `boil:"match_set_ref_id" json:"match_set_ref_id" toml:"match_set_ref_id" yaml:"match_set_ref_id"`
-	UserARefID            string      `boil:"user_a_ref_id" json:"user_a_ref_id" toml:"user_a_ref_id" yaml:"user_a_ref_id"`
-	UserBRefID            string      `boil:"user_b_ref_id" json:"user_b_ref_id" toml:"user_b_ref_id" yaml:"user_b_ref_id"`
 	InitiatorUserRefID    string      `boil:"initiator_user_ref_id" json:"initiator_user_ref_id" toml:"initiator_user_ref_id" yaml:"initiator_user_ref_id"`
 	ReceiverUserRefID     string      `boil:"receiver_user_ref_id" json:"receiver_user_ref_id" toml:"receiver_user_ref_id" yaml:"receiver_user_ref_id"`
 	MatchStatus           string      `boil:"match_status" json:"match_status" toml:"match_status" yaml:"match_status"`
 	MatchLifecycleStatus  null.String `boil:"match_lifecycle_status" json:"match_lifecycle_status,omitempty" toml:"match_lifecycle_status" yaml:"match_lifecycle_status,omitempty"`
 	CurrentDateInstanceID null.String `boil:"current_date_instance_id" json:"current_date_instance_id,omitempty" toml:"current_date_instance_id" yaml:"current_date_instance_id,omitempty"`
-	UserAAction           string      `boil:"user_a_action" json:"user_a_action" toml:"user_a_action" yaml:"user_a_action"`
-	UserAActionAt         null.Time   `boil:"user_a_action_at" json:"user_a_action_at,omitempty" toml:"user_a_action_at" yaml:"user_a_action_at,omitempty"`
-	UserASeenAt           null.Time   `boil:"user_a_seen_at" json:"user_a_seen_at,omitempty" toml:"user_a_seen_at" yaml:"user_a_seen_at,omitempty"`
-	UserBAction           string      `boil:"user_b_action" json:"user_b_action" toml:"user_b_action" yaml:"user_b_action"`
-	UserBActionAt         null.Time   `boil:"user_b_action_at" json:"user_b_action_at,omitempty" toml:"user_b_action_at" yaml:"user_b_action_at,omitempty"`
-	UserBSeenAt           null.Time   `boil:"user_b_seen_at" json:"user_b_seen_at,omitempty" toml:"user_b_seen_at" yaml:"user_b_seen_at,omitempty"`
+	InitiatorAction           string      `boil:"initiator_action" json:"initiator_action" toml:"initiator_action" yaml:"initiator_action"`
+	InitiatorActionAt         null.Time   `boil:"initiator_action_at" json:"initiator_action_at,omitempty" toml:"initiator_action_at" yaml:"initiator_action_at,omitempty"`
+	InitiatorSeenAt           null.Time   `boil:"initiator_seen_at" json:"initiator_seen_at,omitempty" toml:"initiator_seen_at" yaml:"initiator_seen_at,omitempty"`
+	ReceiverAction           string      `boil:"receiver_action" json:"receiver_action" toml:"receiver_action" yaml:"receiver_action"`
+	ReceiverActionAt         null.Time   `boil:"receiver_action_at" json:"receiver_action_at,omitempty" toml:"receiver_action_at" yaml:"receiver_action_at,omitempty"`
+	ReceiverSeenAt           null.Time   `boil:"receiver_seen_at" json:"receiver_seen_at,omitempty" toml:"receiver_seen_at" yaml:"receiver_seen_at,omitempty"`
 	QualifierResults      null.JSON   `boil:"qualifier_results" json:"qualifier_results,omitempty" toml:"qualifier_results" yaml:"qualifier_results,omitempty"`
 	MatchedQualitatively  bool        `boil:"matched_qualitatively" json:"matched_qualitatively" toml:"matched_qualitatively" yaml:"matched_qualitatively"`
 	DeliveredToUserAt     null.Time   `boil:"delivered_to_user_at" json:"delivered_to_user_at,omitempty" toml:"delivered_to_user_at" yaml:"delivered_to_user_at,omitempty"`
@@ -61,19 +59,17 @@ type MatchResult struct {
 var MatchResultColumns = struct {
 	ID                    string
 	MatchSetRefID         string
-	UserARefID            string
-	UserBRefID            string
 	InitiatorUserRefID    string
 	ReceiverUserRefID     string
 	MatchStatus           string
 	MatchLifecycleStatus  string
 	CurrentDateInstanceID string
-	UserAAction           string
-	UserAActionAt         string
-	UserASeenAt           string
-	UserBAction           string
-	UserBActionAt         string
-	UserBSeenAt           string
+	InitiatorAction           string
+	InitiatorActionAt         string
+	InitiatorSeenAt           string
+	ReceiverAction           string
+	ReceiverActionAt         string
+	ReceiverSeenAt           string
 	QualifierResults      string
 	MatchedQualitatively  string
 	DeliveredToUserAt     string
@@ -91,19 +87,17 @@ var MatchResultColumns = struct {
 }{
 	ID:                    "id",
 	MatchSetRefID:         "match_set_ref_id",
-	UserARefID:            "user_a_ref_id",
-	UserBRefID:            "user_b_ref_id",
 	InitiatorUserRefID:    "initiator_user_ref_id",
 	ReceiverUserRefID:     "receiver_user_ref_id",
 	MatchStatus:           "match_status",
 	MatchLifecycleStatus:  "match_lifecycle_status",
 	CurrentDateInstanceID: "current_date_instance_id",
-	UserAAction:           "user_a_action",
-	UserAActionAt:         "user_a_action_at",
-	UserASeenAt:           "user_a_seen_at",
-	UserBAction:           "user_b_action",
-	UserBActionAt:         "user_b_action_at",
-	UserBSeenAt:           "user_b_seen_at",
+	InitiatorAction:           "initiator_action",
+	InitiatorActionAt:         "initiator_action_at",
+	InitiatorSeenAt:           "initiator_seen_at",
+	ReceiverAction:           "receiver_action",
+	ReceiverActionAt:         "receiver_action_at",
+	ReceiverSeenAt:           "receiver_seen_at",
 	QualifierResults:      "qualifier_results",
 	MatchedQualitatively:  "matched_qualitatively",
 	DeliveredToUserAt:     "delivered_to_user_at",
@@ -123,19 +117,17 @@ var MatchResultColumns = struct {
 var MatchResultTableColumns = struct {
 	ID                    string
 	MatchSetRefID         string
-	UserARefID            string
-	UserBRefID            string
 	InitiatorUserRefID    string
 	ReceiverUserRefID     string
 	MatchStatus           string
 	MatchLifecycleStatus  string
 	CurrentDateInstanceID string
-	UserAAction           string
-	UserAActionAt         string
-	UserASeenAt           string
-	UserBAction           string
-	UserBActionAt         string
-	UserBSeenAt           string
+	InitiatorAction           string
+	InitiatorActionAt         string
+	InitiatorSeenAt           string
+	ReceiverAction           string
+	ReceiverActionAt         string
+	ReceiverSeenAt           string
 	QualifierResults      string
 	MatchedQualitatively  string
 	DeliveredToUserAt     string
@@ -153,19 +145,17 @@ var MatchResultTableColumns = struct {
 }{
 	ID:                    "match_result.id",
 	MatchSetRefID:         "match_result.match_set_ref_id",
-	UserARefID:            "match_result.user_a_ref_id",
-	UserBRefID:            "match_result.user_b_ref_id",
 	InitiatorUserRefID:    "match_result.initiator_user_ref_id",
 	ReceiverUserRefID:     "match_result.receiver_user_ref_id",
 	MatchStatus:           "match_result.match_status",
 	MatchLifecycleStatus:  "match_result.match_lifecycle_status",
 	CurrentDateInstanceID: "match_result.current_date_instance_id",
-	UserAAction:           "match_result.user_a_action",
-	UserAActionAt:         "match_result.user_a_action_at",
-	UserASeenAt:           "match_result.user_a_seen_at",
-	UserBAction:           "match_result.user_b_action",
-	UserBActionAt:         "match_result.user_b_action_at",
-	UserBSeenAt:           "match_result.user_b_seen_at",
+	InitiatorAction:           "match_result.initiator_action",
+	InitiatorActionAt:         "match_result.initiator_action_at",
+	InitiatorSeenAt:           "match_result.initiator_seen_at",
+	ReceiverAction:           "match_result.receiver_action",
+	ReceiverActionAt:         "match_result.receiver_action_at",
+	ReceiverSeenAt:           "match_result.receiver_seen_at",
 	QualifierResults:      "match_result.qualifier_results",
 	MatchedQualitatively:  "match_result.matched_qualitatively",
 	DeliveredToUserAt:     "match_result.delivered_to_user_at",
@@ -196,19 +186,17 @@ func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field
 var MatchResultWhere = struct {
 	ID                    whereHelperstring
 	MatchSetRefID         whereHelperstring
-	UserARefID            whereHelperstring
-	UserBRefID            whereHelperstring
 	InitiatorUserRefID    whereHelperstring
 	ReceiverUserRefID     whereHelperstring
 	MatchStatus           whereHelperstring
 	MatchLifecycleStatus  whereHelpernull_String
 	CurrentDateInstanceID whereHelpernull_String
-	UserAAction           whereHelperstring
-	UserAActionAt         whereHelpernull_Time
-	UserASeenAt           whereHelpernull_Time
-	UserBAction           whereHelperstring
-	UserBActionAt         whereHelpernull_Time
-	UserBSeenAt           whereHelpernull_Time
+	InitiatorAction           whereHelperstring
+	InitiatorActionAt         whereHelpernull_Time
+	InitiatorSeenAt           whereHelpernull_Time
+	ReceiverAction           whereHelperstring
+	ReceiverActionAt         whereHelpernull_Time
+	ReceiverSeenAt           whereHelpernull_Time
 	QualifierResults      whereHelpernull_JSON
 	MatchedQualitatively  whereHelperbool
 	DeliveredToUserAt     whereHelpernull_Time
@@ -226,19 +214,17 @@ var MatchResultWhere = struct {
 }{
 	ID:                    whereHelperstring{field: "\"match_result\".\"id\""},
 	MatchSetRefID:         whereHelperstring{field: "\"match_result\".\"match_set_ref_id\""},
-	UserARefID:            whereHelperstring{field: "\"match_result\".\"user_a_ref_id\""},
-	UserBRefID:            whereHelperstring{field: "\"match_result\".\"user_b_ref_id\""},
 	InitiatorUserRefID:    whereHelperstring{field: "\"match_result\".\"initiator_user_ref_id\""},
 	ReceiverUserRefID:     whereHelperstring{field: "\"match_result\".\"receiver_user_ref_id\""},
 	MatchStatus:           whereHelperstring{field: "\"match_result\".\"match_status\""},
 	MatchLifecycleStatus:  whereHelpernull_String{field: "\"match_result\".\"match_lifecycle_status\""},
 	CurrentDateInstanceID: whereHelpernull_String{field: "\"match_result\".\"current_date_instance_id\""},
-	UserAAction:           whereHelperstring{field: "\"match_result\".\"user_a_action\""},
-	UserAActionAt:         whereHelpernull_Time{field: "\"match_result\".\"user_a_action_at\""},
-	UserASeenAt:           whereHelpernull_Time{field: "\"match_result\".\"user_a_seen_at\""},
-	UserBAction:           whereHelperstring{field: "\"match_result\".\"user_b_action\""},
-	UserBActionAt:         whereHelpernull_Time{field: "\"match_result\".\"user_b_action_at\""},
-	UserBSeenAt:           whereHelpernull_Time{field: "\"match_result\".\"user_b_seen_at\""},
+	InitiatorAction:           whereHelperstring{field: "\"match_result\".\"initiator_action\""},
+	InitiatorActionAt:         whereHelpernull_Time{field: "\"match_result\".\"initiator_action_at\""},
+	InitiatorSeenAt:           whereHelpernull_Time{field: "\"match_result\".\"initiator_seen_at\""},
+	ReceiverAction:           whereHelperstring{field: "\"match_result\".\"receiver_action\""},
+	ReceiverActionAt:         whereHelpernull_Time{field: "\"match_result\".\"receiver_action_at\""},
+	ReceiverSeenAt:           whereHelpernull_Time{field: "\"match_result\".\"receiver_seen_at\""},
 	QualifierResults:      whereHelpernull_JSON{field: "\"match_result\".\"qualifier_results\""},
 	MatchedQualitatively:  whereHelperbool{field: "\"match_result\".\"matched_qualitatively\""},
 	DeliveredToUserAt:     whereHelpernull_Time{field: "\"match_result\".\"delivered_to_user_at\""},
@@ -425,9 +411,9 @@ func (r *matchResultR) GetMatchChatMessages() MatchChatMessageSlice {
 type matchResultL struct{}
 
 var (
-	matchResultAllColumns            = []string{"id", "match_set_ref_id", "user_a_ref_id", "user_b_ref_id", "initiator_user_ref_id", "receiver_user_ref_id", "match_status", "match_lifecycle_status", "current_date_instance_id", "user_a_action", "user_a_action_at", "user_a_seen_at", "user_b_action", "user_b_action_at", "user_b_seen_at", "qualifier_results", "matched_qualitatively", "delivered_to_user_at", "last_proposer_user_ref_id", "last_proposed_at", "chat_unlocked_at", "is_approved", "is_dropped", "dropped_ts", "is_possible_match", "is_expired", "expires_at", "created_at", "updated_at"}
-	matchResultColumnsWithoutDefault = []string{"match_set_ref_id", "user_a_ref_id", "user_b_ref_id", "initiator_user_ref_id", "receiver_user_ref_id"}
-	matchResultColumnsWithDefault    = []string{"id", "match_status", "match_lifecycle_status", "current_date_instance_id", "user_a_action", "user_a_action_at", "user_a_seen_at", "user_b_action", "user_b_action_at", "user_b_seen_at", "qualifier_results", "matched_qualitatively", "delivered_to_user_at", "last_proposer_user_ref_id", "last_proposed_at", "chat_unlocked_at", "is_approved", "is_dropped", "dropped_ts", "is_possible_match", "is_expired", "expires_at", "created_at", "updated_at"}
+	matchResultAllColumns            = []string{"id", "match_set_ref_id", "initiator_user_ref_id", "receiver_user_ref_id", "match_status", "match_lifecycle_status", "current_date_instance_id", "initiator_action", "initiator_action_at", "initiator_seen_at", "receiver_action", "receiver_action_at", "receiver_seen_at", "qualifier_results", "matched_qualitatively", "delivered_to_user_at", "last_proposer_user_ref_id", "last_proposed_at", "chat_unlocked_at", "is_approved", "is_dropped", "dropped_ts", "is_possible_match", "is_expired", "expires_at", "created_at", "updated_at"}
+	matchResultColumnsWithoutDefault = []string{"match_set_ref_id", "initiator_user_ref_id", "receiver_user_ref_id"}
+	matchResultColumnsWithDefault    = []string{"id", "match_status", "match_lifecycle_status", "current_date_instance_id", "initiator_action", "initiator_action_at", "initiator_seen_at", "receiver_action", "receiver_action_at", "receiver_seen_at", "qualifier_results", "matched_qualitatively", "delivered_to_user_at", "last_proposer_user_ref_id", "last_proposed_at", "chat_unlocked_at", "is_approved", "is_dropped", "dropped_ts", "is_possible_match", "is_expired", "expires_at", "created_at", "updated_at"}
 	matchResultPrimaryKeyColumns     = []string{"id"}
 	matchResultGeneratedColumns      = []string{}
 )
@@ -784,7 +770,7 @@ func (o *MatchResult) ReceiverUserRef(mods ...qm.QueryMod) userQuery {
 // UserARef pointed to by the foreign key.
 func (o *MatchResult) UserARef(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.UserARefID),
+		qm.Where("\"id\" = ?", o.InitiatorUserRefID),
 	}
 
 	queryMods = append(queryMods, mods...)
@@ -795,7 +781,7 @@ func (o *MatchResult) UserARef(mods ...qm.QueryMod) userQuery {
 // UserBRef pointed to by the foreign key.
 func (o *MatchResult) UserBRef(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.UserBRefID),
+		qm.Where("\"id\" = ?", o.ReceiverUserRefID),
 	}
 
 	queryMods = append(queryMods, mods...)
@@ -1348,7 +1334,7 @@ func (matchResultL) LoadUserARef(ctx context.Context, e boil.ContextExecutor, si
 		if object.R == nil {
 			object.R = &matchResultR{}
 		}
-		args[object.UserARefID] = struct{}{}
+		args[object.InitiatorUserRefID] = struct{}{}
 
 	} else {
 		for _, obj := range slice {
@@ -1356,7 +1342,7 @@ func (matchResultL) LoadUserARef(ctx context.Context, e boil.ContextExecutor, si
 				obj.R = &matchResultR{}
 			}
 
-			args[obj.UserARefID] = struct{}{}
+			args[obj.InitiatorUserRefID] = struct{}{}
 
 		}
 	}
@@ -1421,7 +1407,7 @@ func (matchResultL) LoadUserARef(ctx context.Context, e boil.ContextExecutor, si
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.UserARefID == foreign.ID {
+			if local.InitiatorUserRefID == foreign.ID {
 				local.R.UserARef = foreign
 				if foreign.R == nil {
 					foreign.R = &userR{}
@@ -1468,7 +1454,7 @@ func (matchResultL) LoadUserBRef(ctx context.Context, e boil.ContextExecutor, si
 		if object.R == nil {
 			object.R = &matchResultR{}
 		}
-		args[object.UserBRefID] = struct{}{}
+		args[object.ReceiverUserRefID] = struct{}{}
 
 	} else {
 		for _, obj := range slice {
@@ -1476,7 +1462,7 @@ func (matchResultL) LoadUserBRef(ctx context.Context, e boil.ContextExecutor, si
 				obj.R = &matchResultR{}
 			}
 
-			args[obj.UserBRefID] = struct{}{}
+			args[obj.ReceiverUserRefID] = struct{}{}
 
 		}
 	}
@@ -1541,7 +1527,7 @@ func (matchResultL) LoadUserBRef(ctx context.Context, e boil.ContextExecutor, si
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.UserBRefID == foreign.ID {
+			if local.ReceiverUserRefID == foreign.ID {
 				local.R.UserBRef = foreign
 				if foreign.R == nil {
 					foreign.R = &userR{}
@@ -2015,7 +2001,7 @@ func (o *MatchResult) SetUserARef(ctx context.Context, exec boil.ContextExecutor
 
 	updateQuery := fmt.Sprintf(
 		"UPDATE \"match_result\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"user_a_ref_id"}),
+		strmangle.SetParamNames("\"", "\"", 1, []string{"initiator_user_ref_id"}),
 		strmangle.WhereClause("\"", "\"", 2, matchResultPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
@@ -2029,7 +2015,7 @@ func (o *MatchResult) SetUserARef(ctx context.Context, exec boil.ContextExecutor
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	o.UserARefID = related.ID
+	o.InitiatorUserRefID = related.ID
 	if o.R == nil {
 		o.R = &matchResultR{
 			UserARef: related,
@@ -2062,7 +2048,7 @@ func (o *MatchResult) SetUserBRef(ctx context.Context, exec boil.ContextExecutor
 
 	updateQuery := fmt.Sprintf(
 		"UPDATE \"match_result\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"user_b_ref_id"}),
+		strmangle.SetParamNames("\"", "\"", 1, []string{"receiver_user_ref_id"}),
 		strmangle.WhereClause("\"", "\"", 2, matchResultPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
@@ -2076,7 +2062,7 @@ func (o *MatchResult) SetUserBRef(ctx context.Context, exec boil.ContextExecutor
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	o.UserBRefID = related.ID
+	o.ReceiverUserRefID = related.ID
 	if o.R == nil {
 		o.R = &matchResultR{
 			UserBRef: related,

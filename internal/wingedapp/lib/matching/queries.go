@@ -83,24 +83,24 @@ func (l *Logic) MatchResults(ctx context.Context,
 		for i := range matchResults.Data {
 			mr := &matchResults.Data[i]
 
-			mr.UserADetails, err = l.userMatchingDetails(ctx, exec, mr.UserAID)
+			mr.InitiatorUserDetails, err = l.userMatchingDetails(ctx, exec, mr.InitiatorUserID)
 			if err != nil {
-				return nil, fmt.Errorf("enrich user-A by id %s: %w", mr.UserAID.String(), err)
+				return nil, fmt.Errorf("enrich initiator user by id %s: %w", mr.InitiatorUserID.String(), err)
 			}
 
-			mr.UserBDetails, err = l.userMatchingDetails(ctx, exec, mr.UserBID)
+			mr.ReceiverUserDetails, err = l.userMatchingDetails(ctx, exec, mr.ReceiverUserID)
 			if err != nil {
-				return nil, fmt.Errorf("enrich user-B by id %s: %w", mr.UserBID.String(), err)
+				return nil, fmt.Errorf("enrich receiver user by id %s: %w", mr.ReceiverUserID.String(), err)
 			}
 
 			// Enrich user profiles
-			mr.UserAProfile, err = l.profileStorer.Profile(ctx, aiExec, mr.UserAID)
+			mr.InitiatorUserProfile, err = l.profileStorer.Profile(ctx, aiExec, mr.InitiatorUserID)
 			if err != nil {
-				return nil, fmt.Errorf("enrich user-A profile by id %s: %w", mr.UserAID.String(), err)
+				return nil, fmt.Errorf("enrich initiator user profile by id %s: %w", mr.InitiatorUserID.String(), err)
 			}
-			mr.UserBProfile, err = l.profileStorer.Profile(ctx, aiExec, mr.UserBID)
+			mr.ReceiverUserProfile, err = l.profileStorer.Profile(ctx, aiExec, mr.ReceiverUserID)
 			if err != nil {
-				return nil, fmt.Errorf("enrich user-B profile by id %s: %w", mr.UserBID.String(), err)
+				return nil, fmt.Errorf("enrich receiver user profile by id %s: %w", mr.ReceiverUserID.String(), err)
 			}
 		}
 	}
