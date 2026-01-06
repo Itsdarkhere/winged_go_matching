@@ -19,10 +19,10 @@ type QualitativeMatcher struct {
 
 func NewQualitativeMatcher(logger applog.Logger) *QualitativeMatcher {
 	cln := NewHttpClient(&HttpClientCfg{
-		GeneralTimeoutDuration: 60,
-		ReadTimeoutDuration:    60,
+		GeneralTimeoutDuration: 120,
+		ReadTimeoutDuration:    120,
 		RetryDuration:          60,
-		MaxRetries:             60,
+		MaxRetries:             3,
 	}, logger)
 
 	return &QualitativeMatcher{cln}
@@ -39,7 +39,7 @@ func (qm *QualitativeMatcher) Qualify(
 	// TODO: switch URL based on environment
 	url := "https://winged-ai-backend-dev-1020977593789.asia-east1.run.app/matchmaking_v2"
 
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(50)*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(120)*time.Second)
 	defer cancel()
 
 	body, err := json.Marshal(req)
